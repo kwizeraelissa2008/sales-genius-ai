@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -54,11 +54,9 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur md:px-8">
           <div className="flex items-center gap-3">
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(true)}>
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(true)}>
+              <Menu className="h-5 w-5" />
+            </Button>
             <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
           </div>
           <div className="flex items-center gap-3">
