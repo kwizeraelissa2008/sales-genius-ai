@@ -8,6 +8,8 @@ import {
   Settings,
   LogOut,
   Menu,
+  KanbanSquare,
+  Rocket,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
@@ -20,7 +22,9 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/leads", label: "Leads", icon: Users },
+  { to: "/pipeline", label: "Pipeline", icon: KanbanSquare },
   { to: "/ai", label: "AI Assistant", icon: Bot },
+  { to: "/onboarding", label: "Company profile", icon: Rocket },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;

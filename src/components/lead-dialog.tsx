@@ -43,6 +43,7 @@ const empty = {
   job_title: "",
   status: "new" as LeadStatus,
   notes: "",
+  deal_value: "",
 };
 
 export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
@@ -60,6 +61,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
               job_title: lead.job_title ?? "",
               status: lead.status,
               notes: lead.notes ?? "",
+              deal_value: lead.deal_value ? String(lead.deal_value) : "",
             }
           : empty,
       );
@@ -74,6 +76,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
     }
     setSaving(true);
     try {
+      const dealNum = form.deal_value.trim() ? Number(form.deal_value) : 0;
       const payload = {
         name: form.name.trim(),
         email: form.email.trim() || null,
@@ -81,6 +84,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
         job_title: form.job_title.trim() || null,
         status: form.status,
         notes: form.notes.trim() || null,
+        deal_value: Number.isFinite(dealNum) ? dealNum : 0,
       };
       if (lead) {
         await updateLead(lead.id, payload);
@@ -155,23 +159,38 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
                 />
               </div>
             </div>
-            <div>
-              <Label htmlFor="lead-status">Status</Label>
-              <Select
-                value={form.status}
-                onValueChange={(v) => setForm((f) => ({ ...f, status: v as LeadStatus }))}
-              >
-                <SelectTrigger id="lead-status" className="mt-1.5">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEAD_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s} className="capitalize">
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="lead-status">Status</Label>
+                <Select
+                  value={form.status}
+                  onValueChange={(v) => setForm((f) => ({ ...f, status: v as LeadStatus }))}
+                >
+                  <SelectTrigger id="lead-status" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAD_STATUSES.map((s) => (
+                      <SelectItem key={s} value={s} className="capitalize">
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="lead-deal">Deal value ($)</Label>
+                <Input
+                  id="lead-deal"
+                  type="number"
+                  min="0"
+                  step="100"
+                  value={form.deal_value}
+                  onChange={(e) => setForm((f) => ({ ...f, deal_value: e.target.value }))}
+                  className="mt-1.5"
+                  placeholder="0"
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="lead-notes">Notes</Label>
