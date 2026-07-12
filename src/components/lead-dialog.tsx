@@ -159,23 +159,38 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
                 />
               </div>
             </div>
-            <div>
-              <Label htmlFor="lead-status">Status</Label>
-              <Select
-                value={form.status}
-                onValueChange={(v) => setForm((f) => ({ ...f, status: v as LeadStatus }))}
-              >
-                <SelectTrigger id="lead-status" className="mt-1.5">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEAD_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s} className="capitalize">
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="lead-status">Status</Label>
+                <Select
+                  value={form.status}
+                  onValueChange={(v) => setForm((f) => ({ ...f, status: v as LeadStatus }))}
+                >
+                  <SelectTrigger id="lead-status" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAD_STATUSES.map((s) => (
+                      <SelectItem key={s} value={s} className="capitalize">
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="lead-deal">Deal value ($)</Label>
+                <Input
+                  id="lead-deal"
+                  type="number"
+                  min="0"
+                  step="100"
+                  value={form.deal_value}
+                  onChange={(e) => setForm((f) => ({ ...f, deal_value: e.target.value }))}
+                  className="mt-1.5"
+                  placeholder="0"
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="lead-notes">Notes</Label>
