@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      company_profiles: {
+        Row: {
+          company_name: string
+          company_sizes: string[]
+          created_at: string
+          description: string | null
+          id: string
+          industry: string | null
+          key_features: string[]
+          onboarded: boolean
+          pain_points: string | null
+          price_range: string | null
+          product_description: string | null
+          product_name: string | null
+          regions: string[]
+          target_industries: string[]
+          target_titles: string[]
+          updated_at: string
+          user_id: string
+          value_proposition: string | null
+          website: string | null
+        }
+        Insert: {
+          company_name: string
+          company_sizes?: string[]
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          key_features?: string[]
+          onboarded?: boolean
+          pain_points?: string | null
+          price_range?: string | null
+          product_description?: string | null
+          product_name?: string | null
+          regions?: string[]
+          target_industries?: string[]
+          target_titles?: string[]
+          updated_at?: string
+          user_id: string
+          value_proposition?: string | null
+          website?: string | null
+        }
+        Update: {
+          company_name?: string
+          company_sizes?: string[]
+          created_at?: string
+          description?: string | null
+          id?: string
+          industry?: string | null
+          key_features?: string[]
+          onboarded?: boolean
+          pain_points?: string | null
+          price_range?: string | null
+          product_description?: string | null
+          product_name?: string | null
+          regions?: string[]
+          target_industries?: string[]
+          target_titles?: string[]
+          updated_at?: string
+          user_id?: string
+          value_proposition?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       email_templates: {
         Row: {
           ai_mode_used: string
@@ -56,6 +122,7 @@ export type Database = {
         Row: {
           company: string | null
           created_at: string
+          deal_value: number
           email: string | null
           id: string
           job_title: string | null
@@ -69,6 +136,7 @@ export type Database = {
         Insert: {
           company?: string | null
           created_at?: string
+          deal_value?: number
           email?: string | null
           id?: string
           job_title?: string | null
@@ -82,6 +150,7 @@ export type Database = {
         Update: {
           company?: string | null
           created_at?: string
+          deal_value?: number
           email?: string | null
           id?: string
           job_title?: string | null
@@ -195,7 +264,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      lead_status: "new" | "contacted" | "interested" | "closed"
+      lead_status:
+        | "new"
+        | "contacted"
+        | "interested"
+        | "closed"
+        | "replied"
+        | "meeting"
+        | "proposal"
+        | "won"
+        | "lost"
       payment_provider: "stripe" | "mtn_momo" | "flutterwave"
       payment_status: "pending" | "succeeded" | "failed" | "refunded"
       subscription_plan: "free" | "pro" | "business"
@@ -327,7 +405,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      lead_status: ["new", "contacted", "interested", "closed"],
+      lead_status: [
+        "new",
+        "contacted",
+        "interested",
+        "closed",
+        "replied",
+        "meeting",
+        "proposal",
+        "won",
+        "lost",
+      ],
       payment_provider: ["stripe", "mtn_momo", "flutterwave"],
       payment_status: ["pending", "succeeded", "failed", "refunded"],
       subscription_plan: ["free", "pro", "business"],
