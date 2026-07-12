@@ -62,6 +62,11 @@ function AIPage() {
       toast.error("Pick a lead first");
       return;
     }
+    const trimmedGoal = goal.trim();
+    if (!trimmedGoal) {
+      toast.error("Describe your goal for this email");
+      return;
+    }
     setLoading(true);
     setResult(null);
     try {
