@@ -76,6 +76,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
     }
     setSaving(true);
     try {
+      const dealNum = form.deal_value.trim() ? Number(form.deal_value) : 0;
       const payload = {
         name: form.name.trim(),
         email: form.email.trim() || null,
@@ -83,6 +84,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
         job_title: form.job_title.trim() || null,
         status: form.status,
         notes: form.notes.trim() || null,
+        deal_value: Number.isFinite(dealNum) ? dealNum : 0,
       };
       if (lead) {
         await updateLead(lead.id, payload);
