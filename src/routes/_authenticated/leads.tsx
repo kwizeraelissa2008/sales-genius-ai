@@ -120,34 +120,66 @@ function LeadsPage() {
   }
 
   async function onImportFile(file: File) {
+    if (!/\.csv$/i.test(file.name)) {
+      toast.error("Please upload a .csv file (Excel .xlsx is not supported — export as CSV first).");
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     setImporting(true);
+    const pick = (row: Record<string, string>, keys: string[]) => {
+      const norm = (s: string) => s.toLowerCase().replace(/[\s_-]+/g, "");
+      const map = new Map(Object.entries(row).map(([k, v]) => [norm(k), v]));
+      for (const k of keys) {
+        const v = map.get(norm(k));
+        if (v && String(v).trim()) return String(v).trim();
+      }
+      return "";
+    };
     Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
         try {
           const rows = results.data;
-          let ok = 0;
-          for (const row of rows) {
-            const name = (row.name || row.Name || "").trim();
-            if (!name) continue;
-            const email = (row.email || row.Email || "").trim() || null;
-            const company = (row.company || row.Company || "").trim() || null;
-            const job_title = (row.job_title || row.title || row.Title || "").trim() || null;
-            const notes = (row.notes || row.Notes || "").trim() || null;
-            await createLead({
-              name,
-              email,
-              company,
-              job_title,
-              notes,
-              status: "new",
-              lead_score: heuristicScore({ job_title, company, email }),
-            });
-            ok += 1;
+          if (!rows.length) {
+            toast.error("CSV appears empty or missing a header row.");
+            return;
           }
-          toast.success(`Imported ${ok} lead${ok === 1 ? "" : "s"}`);
+          let ok = 0;
+          let skipped = 0;
+          const errors: string[] = [];
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const first = pick(row, ["first_name", "firstname", "given name"]);
+            const last = pick(row, ["last_name", "lastname", "surname", "family name"]);
+            const full = pick(row, ["name", "full name", "fullname", "contact", "contact name"]);
+            const name = (full || `${first} ${last}`.trim()).trim();
+            if (!name) { skipped++; continue; }
+            const email = pick(row, ["email", "email address", "e-mail", "mail"]) || null;
+            const company = pick(row, ["company", "company name", "organization", "organisation", "account"]) || null;
+            const job_title = pick(row, ["job_title", "title", "position", "role"]) || null;
+            const notes = pick(row, ["notes", "note", "comments", "description"]) || null;
+            try {
+              await createLead({
+                name, email, company, job_title, notes,
+                status: "new",
+                lead_score: heuristicScore({ job_title, company, email }),
+              });
+              ok += 1;
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              if (errors.length < 3) errors.push(`Row ${i + 2}: ${msg}`);
+            }
+          }
           qc.invalidateQueries({ queryKey: ["leads"] });
+          if (ok > 0) {
+            toast.success(`Imported ${ok} lead${ok === 1 ? "" : "s"}${skipped ? ` (${skipped} skipped: missing name)` : ""}`);
+          }
+          if (errors.length) {
+            toast.error(errors.join(" · "));
+          } else if (ok === 0) {
+            toast.error("No rows imported. Ensure your CSV has a 'name' (or first_name/last_name) column.");
+          }
         } catch (err) {
           toast.error(err instanceof Error ? err.message : "Import failed");
         } finally {
@@ -156,8 +188,9 @@ function LeadsPage() {
         }
       },
       error: (err) => {
-        toast.error(err.message);
+        toast.error(`Parse error: ${err.message}`);
         setImporting(false);
+        if (fileRef.current) fileRef.current.value = "";
       },
     });
   }
