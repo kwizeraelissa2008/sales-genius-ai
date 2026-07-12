@@ -77,7 +77,7 @@ function AIPage() {
           leadTitle: lead.job_title,
           leadEmail: lead.email,
           leadScore: lead.lead_score,
-          goal,
+          goal: trimmedGoal,
           senderName: user.email?.split("@")[0] ?? null,
           senderCompany: null,
         },
