@@ -169,7 +169,7 @@ function AIPage() {
             <Button
               className="w-full shadow-[var(--shadow-elegant)]"
               onClick={onGenerate}
-              disabled={loading || !lead}
+              disabled={loading || !lead || !goal.trim()}
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
