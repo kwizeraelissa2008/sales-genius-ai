@@ -6,13 +6,51 @@ export type LeadStatus = Database["public"]["Enums"]["lead_status"];
 export type LeadInsert = Database["public"]["Tables"]["leads"]["Insert"];
 export type LeadUpdate = Database["public"]["Tables"]["leads"]["Update"];
 
-export const LEAD_STATUSES: LeadStatus[] = ["new", "contacted", "interested", "closed"];
+export const LEAD_STATUSES: LeadStatus[] = [
+  "new",
+  "contacted",
+  "replied",
+  "interested",
+  "meeting",
+  "proposal",
+  "won",
+  "closed",
+  "lost",
+];
+
+export const PIPELINE_STAGES: LeadStatus[] = [
+  "new",
+  "contacted",
+  "replied",
+  "meeting",
+  "proposal",
+  "won",
+  "lost",
+];
+
+/** Win probability by stage — used for weighted pipeline value. */
+export const STAGE_PROBABILITY: Record<LeadStatus, number> = {
+  new: 0.1,
+  contacted: 0.2,
+  replied: 0.4,
+  interested: 0.5,
+  meeting: 0.6,
+  proposal: 0.8,
+  won: 1,
+  closed: 1,
+  lost: 0,
+};
 
 export const STATUS_STYLES: Record<LeadStatus, string> = {
   new: "bg-muted text-muted-foreground",
   contacted: "bg-primary/10 text-primary",
+  replied: "bg-primary/15 text-primary",
   interested: "bg-warning/15 text-warning",
+  meeting: "bg-warning/15 text-warning",
+  proposal: "bg-chart-5/15 text-chart-5",
+  won: "bg-success/15 text-success",
   closed: "bg-success/15 text-success",
+  lost: "bg-destructive/10 text-destructive",
 };
 
 /** Heuristic lead scoring — used as a fallback when Groq is unavailable. */
