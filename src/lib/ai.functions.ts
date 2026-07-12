@@ -112,7 +112,7 @@ Body: 100-150 words, warm but professional, reference the sender's product/value
         result = { subject: parsed.subject, body: parsed.body, mode: "groq" };
       } catch (err) {
         console.error("Groq generation failed, using fallback:", err);
-        result = heuristicEmail(data);
+        result = heuristicEmail({ ...data, senderCompany });
       }
     }
 
