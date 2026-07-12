@@ -62,6 +62,11 @@ function AIPage() {
       toast.error("Pick a lead first");
       return;
     }
+    const trimmedGoal = goal.trim();
+    if (!trimmedGoal) {
+      toast.error("Describe your goal for this email");
+      return;
+    }
     setLoading(true);
     setResult(null);
     try {
@@ -72,7 +77,7 @@ function AIPage() {
           leadTitle: lead.job_title,
           leadEmail: lead.email,
           leadScore: lead.lead_score,
-          goal,
+          goal: trimmedGoal,
           senderName: user.email?.split("@")[0] ?? null,
           senderCompany: null,
         },
@@ -164,7 +169,7 @@ function AIPage() {
             <Button
               className="w-full shadow-[var(--shadow-elegant)]"
               onClick={onGenerate}
-              disabled={loading || !lead}
+              disabled={loading || !lead || !goal.trim()}
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
