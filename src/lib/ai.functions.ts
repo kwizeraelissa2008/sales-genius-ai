@@ -44,21 +44,46 @@ export const generateEmail = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => GenerateInput.parse(data))
   .handler(async ({ data, context }): Promise<GenerateResult> => {
     const apiKey = process.env.GROQ_API_KEY;
+
+    // Load the sender's company profile for context (may be null pre-onboarding).
+    const { data: profile } = await context.supabase
+      .from("company_profiles")
+      .select("*")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    const senderCompany = data.senderCompany || profile?.company_name || null;
+    const senderName = data.senderName || null;
+
     let result: GenerateResult;
 
     if (!apiKey) {
-      result = heuristicEmail(data);
+      result = heuristicEmail({ ...data, senderCompany });
     } else {
       try {
+        const companyCtx = profile
+          ? `
+Sender company: ${profile.company_name}${profile.industry ? ` (${profile.industry})` : ""}
+Product: ${profile.product_name ?? "N/A"} — ${profile.product_description ?? ""}
+Key features: ${(profile.key_features ?? []).join(", ") || "N/A"}
+Value proposition: ${profile.value_proposition ?? "N/A"}
+Pain points solved: ${profile.pain_points ?? "N/A"}
+Ideal customer titles: ${(profile.target_titles ?? []).join(", ") || "N/A"}
+`
+          : "Sender company: (profile not set — write generically)";
+
         const prompt = `You are an expert B2B sales copywriter. Write a concise, personalized cold outreach email.
+
+${companyCtx}
 
 Lead: ${data.leadName}${data.leadTitle ? `, ${data.leadTitle}` : ""}${data.leadCompany ? ` at ${data.leadCompany}` : ""}
 Lead score: ${data.leadScore ?? "N/A"}/100
-Sender: ${data.senderName ?? "Sales rep"}${data.senderCompany ? ` (${data.senderCompany})` : ""}
+Sender: ${senderName ?? "Sales rep"}${senderCompany ? ` (${senderCompany})` : ""}
 Goal: ${data.goal}
 
 Return ONLY valid JSON: {"subject": "...", "body": "..."}
-The body must be 90-150 words, warm but professional, one clear CTA, no emojis, no markdown.`;
+Subject: 6-10 words, no spam triggers, personalized.
+Body: 100-150 words, warm but professional, reference the sender's product/value prop, address a relevant pain point, one clear CTA, no emojis, no markdown, no "I hope this email finds you well".`;
 
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
