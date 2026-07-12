@@ -43,6 +43,7 @@ const empty = {
   job_title: "",
   status: "new" as LeadStatus,
   notes: "",
+  deal_value: "",
 };
 
 export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
@@ -60,6 +61,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
               job_title: lead.job_title ?? "",
               status: lead.status,
               notes: lead.notes ?? "",
+              deal_value: lead.deal_value ? String(lead.deal_value) : "",
             }
           : empty,
       );
