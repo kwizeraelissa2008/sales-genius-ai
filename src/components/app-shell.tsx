@@ -11,6 +11,8 @@ import {
   KanbanSquare,
   Rocket,
   BarChart3,
+  Send,
+
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
@@ -25,6 +27,7 @@ const NAV = [
   { to: "/leads", label: "Leads", icon: Users },
   { to: "/pipeline", label: "Pipeline", icon: KanbanSquare },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/sequences", label: "Follow-ups", icon: Send },
   { to: "/ai", label: "AI Assistant", icon: Bot },
   { to: "/onboarding", label: "Company profile", icon: Rocket },
   { to: "/billing", label: "Billing", icon: CreditCard },
