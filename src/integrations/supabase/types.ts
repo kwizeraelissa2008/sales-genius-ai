@@ -80,6 +80,56 @@ export type Database = {
         }
         Relationships: []
       }
+      email_sequences: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          lead_id: string
+          scheduled_at: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["sequence_step_status"]
+          step_number: number
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          scheduled_at: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["sequence_step_status"]
+          step_number: number
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["sequence_step_status"]
+          step_number?: number
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sequences_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
           ai_mode_used: string
@@ -276,6 +326,7 @@ export type Database = {
         | "lost"
       payment_provider: "stripe" | "mtn_momo" | "flutterwave"
       payment_status: "pending" | "succeeded" | "failed" | "refunded"
+      sequence_step_status: "pending" | "sent" | "skipped" | "failed"
       subscription_plan: "free" | "pro" | "business"
       subscription_status: "active" | "canceled" | "past_due" | "trialing"
     }
@@ -418,6 +469,7 @@ export const Constants = {
       ],
       payment_provider: ["stripe", "mtn_momo", "flutterwave"],
       payment_status: ["pending", "succeeded", "failed", "refunded"],
+      sequence_step_status: ["pending", "sent", "skipped", "failed"],
       subscription_plan: ["free", "pro", "business"],
       subscription_status: ["active", "canceled", "past_due", "trialing"],
     },
