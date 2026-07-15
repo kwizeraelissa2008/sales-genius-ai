@@ -10,6 +10,7 @@ import {
   Menu,
   KanbanSquare,
   Rocket,
+  BarChart3,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/leads", label: "Leads", icon: Users },
   { to: "/pipeline", label: "Pipeline", icon: KanbanSquare },
+  { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/ai", label: "AI Assistant", icon: Bot },
   { to: "/onboarding", label: "Company profile", icon: Rocket },
   { to: "/billing", label: "Billing", icon: CreditCard },
