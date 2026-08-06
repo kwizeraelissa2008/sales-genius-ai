@@ -11,11 +11,13 @@ import {
   Sparkles,
   MoreHorizontal,
   Loader2,
+  Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { LeadDialog } from "@/components/lead-dialog";
+import { EnrichDialog } from "@/components/enrich-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +81,7 @@ function LeadsPage() {
   const [editing, setEditing] = useState<Lead | null>(null);
   const [toDelete, setToDelete] = useState<Lead | null>(null);
   const [importing, setImporting] = useState(false);
+  const [enrichOpen, setEnrichOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: leads, isLoading } = useQuery({
@@ -337,6 +340,12 @@ function LeadsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <EnrichDialog
+        open={enrichOpen}
+        onOpenChange={setEnrichOpen}
+        onImported={() => qc.invalidateQueries({ queryKey: ["leads"] })}
+      />
 
       <LeadDialog
         open={dialogOpen}
