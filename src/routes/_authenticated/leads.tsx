@@ -218,9 +218,13 @@ function LeadsPage() {
             {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
             Import CSV
           </Button>
+          <Button variant="outline" onClick={() => setEnrichOpen(true)}>
+            <Link2 className="mr-2 h-4 w-4" /> Enrich from link
+          </Button>
           <Button onClick={openAdd} className="shadow-[var(--shadow-elegant)]">
             <Plus className="mr-2 h-4 w-4" /> Add lead
           </Button>
+
         </div>
       </div>
 
