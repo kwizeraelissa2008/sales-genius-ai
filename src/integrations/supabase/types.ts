@@ -170,43 +170,61 @@ export type Database = {
       }
       leads: {
         Row: {
+          bio: string | null
           company: string | null
           created_at: string
           deal_value: number
           email: string | null
+          enriched_at: string | null
           id: string
           job_title: string | null
+          last_contacted_at: string | null
           lead_score: number
+          location: string | null
           name: string
           notes: string | null
+          social_links: Json
+          source_url: string | null
           status: Database["public"]["Enums"]["lead_status"]
           updated_at: string
           user_id: string
         }
         Insert: {
+          bio?: string | null
           company?: string | null
           created_at?: string
           deal_value?: number
           email?: string | null
+          enriched_at?: string | null
           id?: string
           job_title?: string | null
+          last_contacted_at?: string | null
           lead_score?: number
+          location?: string | null
           name: string
           notes?: string | null
+          social_links?: Json
+          source_url?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
           user_id: string
         }
         Update: {
+          bio?: string | null
           company?: string | null
           created_at?: string
           deal_value?: number
           email?: string | null
+          enriched_at?: string | null
           id?: string
           job_title?: string | null
+          last_contacted_at?: string | null
           lead_score?: number
+          location?: string | null
           name?: string
           notes?: string | null
+          social_links?: Json
+          source_url?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
           user_id?: string

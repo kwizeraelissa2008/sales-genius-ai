@@ -1,14 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Sparkles, Copy, Loader2, Zap } from "lucide-react";
+import { Bot, Sparkles, Copy, Loader2, Zap, Send, RefreshCw, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -21,10 +20,22 @@ import {
 } from "@/components/ui/select";
 import { listLeads } from "@/lib/leads";
 import { generateEmail } from "@/lib/ai.functions";
+import { suggestGoals, sendLeadEmail } from "@/lib/enrich.functions";
+import { GOAL_PRESETS } from "@/lib/goals";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/ai")({
   validateSearch: z.object({ leadId: z.string().optional() }),
-  head: () => ({ meta: [{ title: "AI Assistant — SalesGenius AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "AI Outreach Assistant — SalesGenius AI" },
+      {
+        name: "description",
+        content:
+          "Generate and send personalized outreach emails with AI-suggested goals for every lead.",
+      },
+    ],
+  }),
   component: AIPage,
 });
 
@@ -32,17 +43,18 @@ function AIPage() {
   const { user } = Route.useRouteContext();
   const { leadId } = Route.useSearch();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const generate = useServerFn(generateEmail);
+  const getGoals = useServerFn(suggestGoals);
+  const send = useServerFn(sendLeadEmail);
 
   const { data: leads } = useQuery({ queryKey: ["leads"], queryFn: listLeads });
   const [selectedId, setSelectedId] = useState<string>(leadId ?? "");
-  const [goal, setGoal] = useState(
-    "book a 15-minute intro call to explore how our AI sales platform can help their pipeline",
-  );
+  const [goal, setGoal] = useState(GOAL_PRESETS[0].goals[0]);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ subject: string; body: string; mode: string } | null>(
-    null,
-  );
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [mode, setMode] = useState<string | null>(null);
 
   useEffect(() => {
     if (leadId) setSelectedId(leadId);
@@ -57,18 +69,29 @@ function AIPage() {
     [leads, selectedId],
   );
 
+  const aiGoals = useMutation({
+    mutationFn: async () => {
+      if (!lead) throw new Error("Pick a lead first");
+      return getGoals({
+        data: {
+          leadName: lead.name,
+          leadTitle: lead.job_title,
+          leadCompany: lead.company,
+          leadBio: lead.bio,
+          leadStatus: lead.status,
+        },
+      });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not suggest goals"),
+  });
+
   async function onGenerate() {
-    if (!lead) {
-      toast.error("Pick a lead first");
-      return;
-    }
+    if (!lead) return toast.error("Pick a lead first");
     const trimmedGoal = goal.trim();
-    if (!trimmedGoal) {
-      toast.error("Describe your goal for this email");
-      return;
-    }
+    if (!trimmedGoal) return toast.error("Pick or describe a goal for this email");
     setLoading(true);
-    setResult(null);
+    setSubject("");
+    setBody("");
     try {
       const res = await generate({
         data: {
@@ -82,10 +105,10 @@ function AIPage() {
           senderCompany: null,
         },
       });
-      setResult(res);
-      toast.success(
-        res.mode === "groq" ? "Generated with Groq AI" : "Generated with smart fallback",
-      );
+      setSubject(res.subject);
+      setBody(res.body);
+      setMode(res.mode);
+      toast.success(res.mode === "groq" ? "Generated with AI" : "Generated with smart fallback");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Generation failed");
     } finally {
@@ -93,14 +116,40 @@ function AIPage() {
     }
   }
 
-  async function copy(text: string) {
-    await navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
-  }
+  const sending = useMutation({
+    mutationFn: async () => {
+      if (!lead) throw new Error("Pick a lead first");
+      if (!lead.email) throw new Error(`${lead.name} has no email address yet`);
+      return send({
+        data: {
+          leadId: lead.id,
+          to: lead.email,
+          subject,
+          body,
+          fromName: user.email?.split("@")[0] ?? "Sales",
+        },
+      });
+    },
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      if (res.delivered) {
+        toast.success(`Email sent to ${lead?.email} · lead marked as contacted`);
+      } else {
+        toast.error(res.reason ?? "Sending is not configured yet", {
+          description: "Draft saved. Opening your mail app instead.",
+        });
+        const href = `mailto:${lead?.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(href, "_blank");
+      }
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
+  });
+
+  const suggested = aiGoals.data ?? [];
 
   return (
     <AppShell title="AI Assistant" userEmail={user.email}>
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-[var(--shadow-card)]">
           <div className="flex items-center gap-2">
             <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
@@ -108,7 +157,7 @@ function AIPage() {
             </div>
             <div>
               <h2 className="text-sm font-semibold">Generate personalized email</h2>
-              <p className="text-xs text-muted-foreground">Powered by Groq · Llama 3.3 70B</p>
+              <p className="text-xs text-muted-foreground">Context-aware · uses your company profile</p>
             </div>
           </div>
 
@@ -119,6 +168,7 @@ function AIPage() {
                 value={selectedId}
                 onValueChange={(v) => {
                   setSelectedId(v);
+                  aiGoals.reset();
                   navigate({ to: "/ai", search: { leadId: v }, replace: true });
                 }}
               >
@@ -136,7 +186,7 @@ function AIPage() {
               </Select>
               {(!leads || leads.length === 0) && (
                 <p className="text-xs text-muted-foreground">
-                  Add a lead first from the Leads page.
+                  Add or enrich a lead first from the Leads page.
                 </p>
               )}
             </div>
@@ -147,22 +197,75 @@ function AIPage() {
                   <span className="font-medium">{lead.name}</span>
                   <Badge variant="secondary">Score {lead.lead_score}</Badge>
                 </div>
-                {lead.job_title && (
-                  <div className="mt-1 text-muted-foreground">{lead.job_title}</div>
-                )}
-                {lead.company && (
-                  <div className="text-muted-foreground">{lead.company}</div>
-                )}
+                {lead.job_title && <div className="mt-1 text-muted-foreground">{lead.job_title}</div>}
+                {lead.company && <div className="text-muted-foreground">{lead.company}</div>}
+                <div className="mt-1 text-muted-foreground">
+                  {lead.email ?? "No email on file — add one to send"}
+                </div>
               </div>
             )}
 
-            <div className="space-y-1.5">
-              <Label>Goal / context</Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Goal / context</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => aiGoals.mutate()}
+                  disabled={!lead || aiGoals.isPending}
+                >
+                  {aiGoals.isPending ? (
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  ) : (
+                    <Wand2 className="mr-1 h-3 w-3" />
+                  )}
+                  Suggest for this lead
+                </Button>
+              </div>
+
+              {suggested.length > 0 && (
+                <div className="space-y-1.5 rounded-lg border border-primary/30 bg-primary/[0.03] p-2">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-[11px] font-medium text-primary">
+                      Tailored suggestions
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => aiGoals.mutate()}
+                      className="text-[11px] text-muted-foreground hover:text-foreground"
+                    >
+                      <RefreshCw className="inline h-3 w-3" /> new
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggested.map((g) => (
+                      <GoalChip key={g} goal={g} active={goal === g} onPick={setGoal} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2 rounded-lg border border-border/60 p-2">
+                {GOAL_PRESETS.map((group) => (
+                  <div key={group.group}>
+                    <div className="px-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {group.group}
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {group.goals.map((g) => (
+                        <GoalChip key={g} goal={g} active={goal === g} onPick={setGoal} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <Textarea
-                rows={4}
+                rows={3}
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
-                placeholder="What do you want from this email?"
+                placeholder="Or write your own goal for this email..."
               />
             </div>
 
@@ -182,7 +285,7 @@ function AIPage() {
         </div>
 
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-[var(--shadow-card)]">
-          {!result && !loading && (
+          {!subject && !loading && (
             <div className="grid h-full min-h-[400px] place-items-center text-center">
               <div>
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -190,8 +293,7 @@ function AIPage() {
                 </div>
                 <h3 className="mt-4 text-lg font-semibold">Your email will appear here</h3>
                 <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                  Pick a lead, describe your goal, and let AI craft a personalized outreach in
-                  seconds.
+                  Pick a lead, choose a goal, and send it in one click.
                 </p>
               </div>
             </div>
@@ -204,39 +306,58 @@ function AIPage() {
               </div>
             </div>
           )}
-          {result && (
+          {subject && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <Badge
                   variant="secondary"
                   className={
-                    result.mode === "groq"
-                      ? "bg-success/15 text-success"
-                      : "bg-warning/15 text-warning"
+                    mode === "groq" ? "bg-success/15 text-success" : "bg-warning/15 text-warning"
                   }
                 >
-                  {result.mode === "groq" ? "Groq AI" : "Smart fallback"}
+                  {mode === "groq" ? "AI generated" : "Smart fallback"}
                 </Badge>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copy(`Subject: ${result.subject}\n\n${result.body}`)}
-                >
-                  <Copy className="mr-2 h-4 w-4" /> Copy all
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`);
+                      toast.success("Copied to clipboard");
+                    }}
+                  >
+                    <Copy className="mr-2 h-4 w-4" /> Copy
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => sending.mutate()}
+                    disabled={sending.isPending || !lead?.email}
+                    className="shadow-[var(--shadow-elegant)]"
+                  >
+                    {sending.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="mr-2 h-4 w-4" />
+                    )}
+                    Send email
+                  </Button>
+                </div>
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground">Subject</Label>
-                <div className="mt-1 rounded-lg border border-border/60 bg-muted/30 p-3 font-medium">
-                  {result.subject}
-                </div>
+                <Textarea
+                  rows={2}
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="mt-1 font-medium"
+                />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground">Body</Label>
                 <Textarea
                   rows={14}
-                  value={result.body}
-                  onChange={(e) => setResult({ ...result, body: e.target.value })}
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
                   className="mt-1 font-mono text-sm"
                 />
               </div>
@@ -245,5 +366,30 @@ function AIPage() {
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function GoalChip({
+  goal,
+  active,
+  onPick,
+}: {
+  goal: string;
+  active: boolean;
+  onPick: (g: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onPick(goal)}
+      className={cn(
+        "rounded-full border px-2.5 py-1 text-left text-[11px] leading-tight transition-colors",
+        active
+          ? "border-primary bg-primary/10 text-primary"
+          : "border-border/70 text-muted-foreground hover:border-primary/50 hover:text-foreground",
+      )}
+    >
+      {goal}
+    </button>
   );
 }
