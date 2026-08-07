@@ -177,6 +177,7 @@ export type Database = {
           email: string | null
           enriched_at: string | null
           id: string
+          is_demo: boolean
           job_title: string | null
           last_contacted_at: string | null
           lead_score: number
@@ -197,6 +198,7 @@ export type Database = {
           email?: string | null
           enriched_at?: string | null
           id?: string
+          is_demo?: boolean
           job_title?: string | null
           last_contacted_at?: string | null
           lead_score?: number
@@ -217,6 +219,7 @@ export type Database = {
           email?: string | null
           enriched_at?: string | null
           id?: string
+          is_demo?: boolean
           job_title?: string | null
           last_contacted_at?: string | null
           lead_score?: number
@@ -324,6 +327,27 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_events: {
+        Row: {
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["usage_kind"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["usage_kind"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["usage_kind"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -347,6 +371,7 @@ export type Database = {
       sequence_step_status: "pending" | "sent" | "skipped" | "failed"
       subscription_plan: "free" | "pro" | "business"
       subscription_status: "active" | "canceled" | "past_due" | "trialing"
+      usage_kind: "ai_email" | "enrichment" | "email_send"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -490,6 +515,7 @@ export const Constants = {
       sequence_step_status: ["pending", "sent", "skipped", "failed"],
       subscription_plan: ["free", "pro", "business"],
       subscription_status: ["active", "canceled", "past_due", "trialing"],
+      usage_kind: ["ai_email", "enrichment", "email_send"],
     },
   },
 } as const

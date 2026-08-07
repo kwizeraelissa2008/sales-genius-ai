@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, CreditCard, Loader2, Smartphone, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 
+import { UsagePanel } from "@/components/usage-panel";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +117,12 @@ function BillingPage() {
             {subscription?.status ?? "active"}
           </Badge>
         </div>
+      </div>
+
+      <div className="mb-6">
+
+        <UsagePanel />
+
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
