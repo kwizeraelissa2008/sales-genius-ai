@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { LeadDialog } from "@/components/lead-dialog";
 import { EnrichDialog } from "@/components/enrich-dialog";
+import { ScoreBar } from "@/components/score-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -299,7 +300,7 @@ function LeadsPage() {
                   <TableCell className="text-sm text-muted-foreground">{lead.company ?? "—"}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{lead.job_title ?? "—"}</TableCell>
                   <TableCell>
-                    <ScoreCell score={lead.lead_score} />
+                    <ScoreBar lead={lead} />
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className={cn("capitalize font-medium", STATUS_STYLES[lead.status])}>
@@ -377,17 +378,3 @@ function LeadsPage() {
   );
 }
 
-function ScoreCell({ score }: { score: number }) {
-  const color =
-    score >= 80 ? "text-success" : score >= 55 ? "text-warning" : "text-muted-foreground";
-  const bar =
-    score >= 80 ? "bg-success" : score >= 55 ? "bg-warning" : "bg-muted-foreground/40";
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-14 overflow-hidden rounded-full bg-muted">
-        <div className={cn("h-full", bar)} style={{ width: `${score}%` }} />
-      </div>
-      <span className={cn("text-sm font-semibold tabular-nums", color)}>{score}</span>
-    </div>
-  );
-}

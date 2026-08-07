@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { ScoreBadge } from "@/components/score-badge";
 import {
   Select,
   SelectContent,
@@ -90,7 +90,7 @@ export function LeadSheet({
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             {lead.name}
-            <Badge variant="secondary">Score {lead.lead_score}</Badge>
+            <ScoreBadge lead={lead} prefix="Score" className="text-[11px]" />
           </SheetTitle>
           <SheetDescription>
             {[lead.job_title, lead.company].filter(Boolean).join(" · ") || "No role on file"}

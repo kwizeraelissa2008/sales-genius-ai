@@ -14,6 +14,7 @@ import { GripVertical, Mail } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { PIPELINE_STAGES, type Lead, type LeadStatus } from "@/lib/leads";
+import { ScoreBadge } from "@/components/score-badge";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "./pipeline-metrics";
 
@@ -161,12 +162,6 @@ function DraggableCard({ lead, onOpen }: { lead: Lead; onOpen: (lead: Lead) => v
 }
 
 export function LeadCard({ lead, overlay = false }: { lead: Lead; overlay?: boolean }) {
-  const scoreCls =
-    lead.lead_score >= 80
-      ? "bg-success/15 text-success"
-      : lead.lead_score >= 55
-        ? "bg-warning/15 text-warning"
-        : "bg-muted text-muted-foreground";
   return (
     <div
       className={cn(
@@ -182,9 +177,7 @@ export function LeadCard({ lead, overlay = false }: { lead: Lead; overlay?: bool
             <div className="mt-0.5 truncate text-[11px] text-muted-foreground">{lead.company}</div>
           )}
           <div className="mt-2 flex items-center justify-between">
-            <Badge variant="secondary" className={cn("text-[10px]", scoreCls)}>
-              {lead.lead_score}
-            </Badge>
+            <ScoreBadge lead={lead} />
             <div className="flex items-center gap-1.5">
               {lead.last_contacted_at && <Mail className="h-3 w-3 text-success" />}
               {Number(lead.deal_value ?? 0) > 0 && (
