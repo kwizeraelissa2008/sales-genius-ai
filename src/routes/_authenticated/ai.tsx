@@ -19,7 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { listLeads } from "@/lib/leads";
-import { generateEmail } from "@/lib/ai.functions";
+import { generateEmail, type EmailVariant } from "@/lib/ai.functions";
+import { DeliverabilityNotice } from "@/components/deliverability-notice";
+import { useUsage } from "@/components/usage-panel";
 import { suggestGoals, sendLeadEmail } from "@/lib/enrich.functions";
 import { GOAL_PRESETS } from "@/lib/goals";
 import { cn } from "@/lib/utils";
@@ -55,6 +57,8 @@ function AIPage() {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [mode, setMode] = useState<string | null>(null);
+  const [variants, setVariants] = useState<EmailVariant[]>([]);
+  const [tone, setTone] = useState<string>("");
 
   useEffect(() => {
     if (leadId) setSelectedId(leadId);
@@ -90,6 +94,7 @@ function AIPage() {
     const trimmedGoal = goal.trim();
     if (!trimmedGoal) return toast.error("Pick or describe a goal for this email");
     setLoading(true);
+    setVariants([]);
     setSubject("");
     setBody("");
     try {
@@ -105,9 +110,13 @@ function AIPage() {
           senderCompany: null,
         },
       });
-      setSubject(res.subject);
-      setBody(res.body);
+      setVariants(res.variants);
+      const primary = res.variants[0];
+      setTone(primary.tone);
+      setSubject(primary.subject);
+      setBody(primary.body);
       setMode(res.mode);
+      qc.invalidateQueries({ queryKey: ["usage"] });
       toast.success(res.mode === "groq" ? "Generated with AI" : "Generated with smart fallback");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Generation failed");
@@ -308,6 +317,34 @@ function AIPage() {
           )}
           {subject && (
             <div className="space-y-4">
+              {variants.length > 1 && (
+                <div
+                  role="group"
+                  aria-label="Choose an email tone"
+                  className="flex flex-wrap gap-2"
+                >
+                  {variants.map((v) => (
+                    <button
+                      key={v.tone}
+                      type="button"
+                      aria-pressed={tone === v.tone}
+                      onClick={() => {
+                        setTone(v.tone);
+                        setSubject(v.subject);
+                        setBody(v.body);
+                      }}
+                      className={cn(
+                        "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        tone === v.tone
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border/70 text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <Badge
                   variant="secondary"

@@ -20,6 +20,7 @@ import {
   Plus,
 } from "lucide-react";
 
+import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
