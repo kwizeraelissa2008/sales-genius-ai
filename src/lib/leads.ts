@@ -53,29 +53,76 @@ export const STATUS_STYLES: Record<LeadStatus, string> = {
   lost: "bg-destructive/10 text-destructive",
 };
 
-/** Heuristic lead scoring — used as a fallback when Groq is unavailable. */
-export function heuristicScore(lead: {
+export type ScoreFactor = {
+  label: string;
+  detail: string;
+  points: number;
+};
+
+export type ScoreBreakdown = {
+  total: number;
+  factors: ScoreFactor[];
+  capped: boolean;
+};
+
+type ScorableLead = {
   job_title?: string | null;
   company?: string | null;
   email?: string | null;
-}): number {
-  let score = 40;
+};
+
+/**
+ * Explainable scoring: returns every factor that contributed points so the UI
+ * can show *why* a lead earned its score.
+ */
+export function scoreBreakdown(lead: ScorableLead): ScoreBreakdown {
+  const factors: ScoreFactor[] = [
+    { label: "Base score", detail: "Every lead starts here", points: 40 },
+  ];
+
   const title = (lead.job_title ?? "").toLowerCase();
-  if (/(ceo|founder|owner|president)/.test(title)) score += 45;
-  else if (/(cto|cfo|coo|cmo|cro|chief)/.test(title)) score += 40;
-  else if (/(vp|vice president|head of)/.test(title)) score += 30;
-  else if (/(director|principal)/.test(title)) score += 22;
-  else if (/(manager|lead)/.test(title)) score += 12;
-  else if (title) score += 5;
+  if (/(ceo|founder|owner|president)/.test(title))
+    factors.push({ label: "Job title seniority", detail: "Founder / owner level", points: 45 });
+  else if (/(cto|cfo|coo|cmo|cro|chief)/.test(title))
+    factors.push({ label: "Job title seniority", detail: "C-suite executive", points: 40 });
+  else if (/(vp|vice president|head of)/.test(title))
+    factors.push({ label: "Job title seniority", detail: "VP / Head of", points: 30 });
+  else if (/(director|principal)/.test(title))
+    factors.push({ label: "Job title seniority", detail: "Director / principal", points: 22 });
+  else if (/(manager|lead)/.test(title))
+    factors.push({ label: "Job title seniority", detail: "Manager / team lead", points: 12 });
+  else if (title)
+    factors.push({ label: "Job title seniority", detail: "Individual contributor", points: 5 });
+  else factors.push({ label: "Job title seniority", detail: "No job title on file", points: 0 });
 
   const company = (lead.company ?? "").trim();
-  if (company.length > 0) score += 8;
+  factors.push({
+    label: "Company presence",
+    detail: company ? `Works at ${company}` : "No company on file",
+    points: company.length > 0 ? 8 : 0,
+  });
 
   const email = (lead.email ?? "").toLowerCase();
-  if (email && !/(gmail|yahoo|hotmail|outlook|proton)\./.test(email)) score += 7;
+  const isBusiness = !!email && !/(gmail|yahoo|hotmail|outlook|proton)\./.test(email);
+  factors.push({
+    label: "Business email domain",
+    detail: !email
+      ? "No email on file"
+      : isBusiness
+        ? "Company domain address"
+        : "Free consumer mailbox",
+    points: isBusiness ? 7 : 0,
+  });
 
-  return Math.max(0, Math.min(100, score));
+  const raw = factors.reduce((sum, f) => sum + f.points, 0);
+  return { total: Math.max(0, Math.min(100, raw)), factors, capped: raw > 100 };
 }
+
+/** Heuristic lead scoring — used as a fallback when Groq is unavailable. */
+export function heuristicScore(lead: ScorableLead): number {
+  return scoreBreakdown(lead).total;
+}
+
 
 export async function listLeads(): Promise<Lead[]> {
   const { data, error } = await supabase
