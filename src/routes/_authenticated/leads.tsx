@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { LeadDialog } from "@/components/lead-dialog";
 import { EnrichDialog } from "@/components/enrich-dialog";
+import { LeadSheet } from "@/components/pipeline/lead-sheet";
 import { ScoreBar } from "@/components/score-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +60,7 @@ import {
   listLeads,
   deleteLead,
   createLead,
+  updateLead,
   heuristicScore,
   LEAD_STATUSES,
   STATUS_STYLES,
@@ -83,6 +85,7 @@ function LeadsPage() {
   const [toDelete, setToDelete] = useState<Lead | null>(null);
   const [importing, setImporting] = useState(false);
   const [enrichOpen, setEnrichOpen] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: leads, isLoading } = useQuery({
@@ -294,8 +297,19 @@ function LeadsPage() {
               filtered.map((lead) => (
                 <TableRow key={lead.id} className="group">
                   <TableCell>
-                    <div className="font-medium">{lead.name}</div>
-                    {lead.email && <div className="text-xs text-muted-foreground">{lead.email}</div>}
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(lead.id)}
+                      className="text-left"
+                      aria-label={`View details for ${lead.name}`}
+                    >
+                      <div className="font-medium underline-offset-4 hover:text-primary hover:underline">
+                        {lead.name}
+                      </div>
+                      {lead.email && (
+                        <div className="text-xs text-muted-foreground">{lead.email}</div>
+                      )}
+                    </button>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{lead.company ?? "—"}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{lead.job_title ?? "—"}</TableCell>
@@ -315,6 +329,9 @@ function LeadsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setOpenId(lead.id)}>
+                          <Search className="mr-2 h-4 w-4" /> View details
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(lead)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
@@ -341,6 +358,19 @@ function LeadsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <LeadSheet
+        lead={openId ? (leads ?? []).find((l) => l.id === openId) ?? null : null}
+        onOpenChange={(open) => !open && setOpenId(null)}
+        onSave={async (id, patch) => {
+          await updateLead(id, patch);
+          await qc.invalidateQueries({ queryKey: ["leads"] });
+        }}
+        onDelete={async (id) => {
+          await deleteLead(id);
+          await qc.invalidateQueries({ queryKey: ["leads"] });
+        }}
+      />
 
       <EnrichDialog
         open={enrichOpen}
