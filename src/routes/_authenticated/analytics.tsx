@@ -8,8 +8,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -52,7 +50,6 @@ function AnalyticsPage() {
   const kpis = useMemo(() => computeKpis(leads ?? []), [leads]);
   const funnel = useMemo(() => computeFunnel(leads ?? []), [leads]);
   const trend = useMemo(() => computeTrend(leads ?? []), [leads]);
-  const sources = useMemo(() => computeSources(leads ?? []), [leads]);
 
   return (
     <AppShell title="Analytics" userEmail={user.email}>
@@ -63,9 +60,9 @@ function AnalyticsPage() {
         <Kpi label="Win rate" value={`${kpis.winRate}%`} icon={Percent} tone="warning" hint={`${kpis.wonCount}/${kpis.decidedCount} decided`} isLoading={isLoading} />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2" title="Revenue trend" subtitle="Cumulative closed-won by week">
-          <div className="h-72">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card title="Revenue won over time" subtitle="Running total of closed-won deal value, by week">
+          <div className="h-56">
             {isLoading ? (
               <Skeleton className="h-full w-full" />
             ) : trend.length === 0 ? (
@@ -81,7 +78,7 @@ function AnalyticsPage() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => money(Number(v))} width={60} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => money(Number(v))} width={55} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
                     formatter={(v: number) => money(Number(v))}
@@ -93,51 +90,13 @@ function AnalyticsPage() {
           </div>
         </Card>
 
-        <Card title="Lead sources" subtitle="Where deals come from">
-          <div className="h-72">
-            {isLoading ? (
-              <Skeleton className="h-full w-full" />
-            ) : sources.length === 0 ? (
-              <Empty label="Add leads to see source mix." />
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Tooltip
-                    contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
-                  />
-                  <Pie data={sources} dataKey="value" nameKey="name" innerRadius={55} outerRadius={90} paddingAngle={2}>
-                    {sources.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-          {sources.length > 0 && (
-            <ul className="mt-2 space-y-1.5">
-              {sources.map((s, i) => (
-                <li key={s.name} className="flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                    <span className="text-muted-foreground">{s.name}</span>
-                  </span>
-                  <span className="tabular-nums font-medium">{s.value}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2" title="Conversion funnel" subtitle="How leads flow through your pipeline">
-          <div className="h-72">
+        <Card title="Where your leads are" subtitle="Number of leads sitting in each stage right now">
+          <div className="h-56">
             {isLoading ? (
               <Skeleton className="h-full w-full" />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={funnel} layout="vertical" margin={{ top: 5, right: 20, left: 40, bottom: 5 }}>
+                <BarChart data={funnel} layout="vertical" margin={{ top: 5, right: 20, left: 30, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                   <XAxis type="number" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
                   <YAxis type="category" dataKey="label" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} />
@@ -155,30 +114,31 @@ function AnalyticsPage() {
             )}
           </div>
         </Card>
-
-        <Card title="ROI summary" subtitle="Your return on outbound">
-          <div className="space-y-4">
-            <RoiRow icon={Target} label="Avg deal size" value={money(kpis.avgDeal)} />
-            <RoiRow icon={Activity} label="Leads in play" value={String(kpis.openCount)} />
-            <RoiRow icon={TrendingUp} label="Projected close" value={money(kpis.projectedClose)} hint="Weighted + won" />
-            <RoiRow icon={Trophy} label="Best stage" value={kpis.bestStage} hint={`${kpis.bestStageCount} leads`} />
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-              <div className="text-xs font-medium text-muted-foreground">Estimated ROI</div>
-              <div className="mt-1 text-2xl font-semibold tabular-nums text-primary">
-                {kpis.roi > 0 ? `${kpis.roi}x` : "—"}
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                vs. $99/mo SalesGenius plan
-              </div>
-            </div>
-          </div>
-        </Card>
       </div>
+
+      <div className="mt-6 rounded-2xl border border-border/70 bg-card p-6 shadow-[var(--shadow-card)]">
+        <h2 className="text-base font-semibold">What this means</h2>
+        <p className="text-xs text-muted-foreground">Plain-English read on your numbers</p>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <RoiRow icon={Target} label="Average won deal" value={money(kpis.avgDeal)} hint="Revenue ÷ deals won" />
+          <RoiRow icon={Activity} label="Deals still open" value={String(kpis.openCount)} hint={`Most sit in "${kpis.bestStage}"`} />
+          <RoiRow icon={TrendingUp} label="Likely to close" value={money(kpis.projectedClose)} hint="Won + weighted forecast" />
+        </div>
+        <p className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
+          You have {kpis.openCount} open {kpis.openCount === 1 ? "deal" : "deals"} worth{" "}
+          <span className="font-semibold text-foreground">{money(kpis.pipelineValue)}</span>. Based on
+          stage probability, about{" "}
+          <span className="font-semibold text-foreground">{money(kpis.weighted)}</span> of that should
+          land — and you close{" "}
+          <span className="font-semibold text-foreground">{kpis.winRate}%</span> of the deals you
+          decide.
+        </p>
+      </div>
+
     </AppShell>
   );
 }
 
-const PIE_COLORS = ["var(--primary)", "var(--chart-5)", "var(--warning)", "var(--success)", "var(--muted-foreground)"];
 const FUNNEL_COLORS = [
   "var(--muted-foreground)",
   "var(--primary)",
@@ -264,20 +224,6 @@ function computeTrend(leads: Lead[]) {
         cumulative: cum,
       };
     });
-}
-
-function computeSources(leads: Lead[]) {
-  if (leads.length === 0) return [];
-  const buckets = new Map<string, number>();
-  leads.forEach((l) => {
-    const email = (l.email ?? "").toLowerCase();
-    let src = "Direct";
-    if (/(gmail|yahoo|hotmail|outlook|proton)\./.test(email)) src = "Personal email";
-    else if (email.includes("@")) src = "Business email";
-    else if (l.company) src = "Company entry";
-    buckets.set(src, (buckets.get(src) ?? 0) + 1);
-  });
-  return Array.from(buckets.entries()).map(([name, value]) => ({ name, value }));
 }
 
 function Kpi({
