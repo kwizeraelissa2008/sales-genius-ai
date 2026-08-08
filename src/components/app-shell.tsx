@@ -18,7 +18,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import appIcon from "/app-icon.png?url";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -86,7 +85,7 @@ function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 border-b border-border/60 px-5">
         <img
-          src={appIcon}
+          src="/app-icon.png"
           alt="SalesGenius AI logo"
           width={32}
           height={32}

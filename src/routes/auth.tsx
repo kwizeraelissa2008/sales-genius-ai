@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Sparkles, Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -51,9 +51,13 @@ function AuthPage() {
         </Link>
 
         <div className="mb-6 flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-[image:var(--gradient-primary)] shadow-[var(--shadow-elegant)]">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
-          </div>
+          <img
+            src="/app-icon.png"
+            alt="SalesGenius AI logo"
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-lg shadow-[var(--shadow-elegant)]"
+          />
           <span className="text-lg font-semibold tracking-tight">SalesGenius AI</span>
         </div>
 
