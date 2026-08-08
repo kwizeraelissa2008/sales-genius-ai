@@ -3,7 +3,17 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Sparkles, Copy, Loader2, Zap, Send, RefreshCw, Wand2, MailWarning } from "lucide-react";
+import {
+  Bot,
+  Sparkles,
+  Copy,
+  Loader2,
+  Zap,
+  Send,
+  RefreshCw,
+  Wand2,
+  MailWarning,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -174,7 +184,9 @@ function AIPage() {
             </div>
             <div>
               <h2 className="text-sm font-semibold">Generate personalized email</h2>
-              <p className="text-xs text-muted-foreground">Context-aware · uses your company profile</p>
+              <p className="text-xs text-muted-foreground">
+                Context-aware · uses your company profile
+              </p>
             </div>
           </div>
 
@@ -214,7 +226,9 @@ function AIPage() {
                   <span className="font-medium">{lead.name}</span>
                   <Badge variant="secondary">Score {lead.lead_score}</Badge>
                 </div>
-                {lead.job_title && <div className="mt-1 text-muted-foreground">{lead.job_title}</div>}
+                {lead.job_title && (
+                  <div className="mt-1 text-muted-foreground">{lead.job_title}</div>
+                )}
                 {lead.company && <div className="text-muted-foreground">{lead.company}</div>}
                 <div className="mt-1 text-muted-foreground">
                   {lead.email ?? "No email on file — add one to send"}
@@ -407,8 +421,8 @@ function AIPage() {
                     No email provider is connected yet
                   </div>
                   <p className="mt-1 text-muted-foreground">
-                    Connect a sending domain to deliver emails automatically. Until then, Send
-                    saves the draft and opens your own mail app.
+                    Connect a sending domain to deliver emails automatically. Until then, Send saves
+                    the draft and opens your own mail app.
                   </p>
                 </div>
               )}

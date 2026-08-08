@@ -17,7 +17,13 @@ import { DollarSign, TrendingUp, Target, Percent, Activity, Trophy } from "lucid
 
 import { AppShell } from "@/components/app-shell";
 import { Skeleton } from "@/components/ui/skeleton";
-import { listLeads, PIPELINE_STAGES, STAGE_PROBABILITY, type Lead, type LeadStatus } from "@/lib/leads";
+import {
+  listLeads,
+  PIPELINE_STAGES,
+  STAGE_PROBABILITY,
+  type Lead,
+  type LeadStatus,
+} from "@/lib/leads";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/analytics")({
@@ -54,14 +60,45 @@ function AnalyticsPage() {
   return (
     <AppShell title="Analytics" userEmail={user.email}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi label="Revenue won" value={money(kpis.wonValue)} icon={Trophy} tone="success" hint={`${kpis.wonCount} deals`} isLoading={isLoading} />
-        <Kpi label="Pipeline value" value={money(kpis.pipelineValue)} icon={DollarSign} tone="primary" hint={`${kpis.openCount} open`} isLoading={isLoading} />
-        <Kpi label="Weighted forecast" value={money(kpis.weighted)} icon={TrendingUp} tone="chart" hint="Probability × value" isLoading={isLoading} />
-        <Kpi label="Win rate" value={`${kpis.winRate}%`} icon={Percent} tone="warning" hint={`${kpis.wonCount}/${kpis.decidedCount} decided`} isLoading={isLoading} />
+        <Kpi
+          label="Revenue won"
+          value={money(kpis.wonValue)}
+          icon={Trophy}
+          tone="success"
+          hint={`${kpis.wonCount} deals`}
+          isLoading={isLoading}
+        />
+        <Kpi
+          label="Pipeline value"
+          value={money(kpis.pipelineValue)}
+          icon={DollarSign}
+          tone="primary"
+          hint={`${kpis.openCount} open`}
+          isLoading={isLoading}
+        />
+        <Kpi
+          label="Weighted forecast"
+          value={money(kpis.weighted)}
+          icon={TrendingUp}
+          tone="chart"
+          hint="Probability × value"
+          isLoading={isLoading}
+        />
+        <Kpi
+          label="Win rate"
+          value={`${kpis.winRate}%`}
+          icon={Percent}
+          tone="warning"
+          hint={`${kpis.wonCount}/${kpis.decidedCount} decided`}
+          isLoading={isLoading}
+        />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card title="Revenue won over time" subtitle="Running total of closed-won deal value, by week">
+        <Card
+          title="Revenue won over time"
+          subtitle="Running total of closed-won deal value, by week"
+        >
           <div className="h-56">
             {isLoading ? (
               <Skeleton className="h-full w-full" />
@@ -77,32 +114,83 @@ function AnalyticsPage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => money(Number(v))} width={55} />
+                  <XAxis
+                    dataKey="label"
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => money(Number(v))}
+                    width={55}
+                  />
                   <Tooltip
-                    contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                    contentStyle={{
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
                     formatter={(v: number) => money(Number(v))}
                   />
-                  <Area type="monotone" dataKey="cumulative" stroke="var(--primary)" strokeWidth={2} fill="url(#rev)" />
+                  <Area
+                    type="monotone"
+                    dataKey="cumulative"
+                    stroke="var(--primary)"
+                    strokeWidth={2}
+                    fill="url(#rev)"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             )}
           </div>
         </Card>
 
-        <Card title="Where your leads are" subtitle="Number of leads sitting in each stage right now">
+        <Card
+          title="Where your leads are"
+          subtitle="Number of leads sitting in each stage right now"
+        >
           <div className="h-56">
             {isLoading ? (
               <Skeleton className="h-full w-full" />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={funnel} layout="vertical" margin={{ top: 5, right: 20, left: 30, bottom: 5 }}>
+                <BarChart
+                  data={funnel}
+                  layout="vertical"
+                  margin={{ top: 5, right: 20, left: 30, bottom: 5 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                  <XAxis type="number" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="label" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={70} />
+                  <XAxis
+                    type="number"
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="label"
+                    stroke="var(--muted-foreground)"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    width={70}
+                  />
                   <Tooltip
                     cursor={{ fill: "var(--muted)", opacity: 0.4 }}
-                    contentStyle={{ backgroundColor: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                    contentStyle={{
+                      backgroundColor: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
                   />
                   <Bar dataKey="count" radius={[0, 6, 6, 0]}>
                     {funnel.map((_, i) => (
@@ -120,21 +208,35 @@ function AnalyticsPage() {
         <h2 className="text-base font-semibold">What this means</h2>
         <p className="text-xs text-muted-foreground">Plain-English read on your numbers</p>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <RoiRow icon={Target} label="Average won deal" value={money(kpis.avgDeal)} hint="Revenue ÷ deals won" />
-          <RoiRow icon={Activity} label="Deals still open" value={String(kpis.openCount)} hint={`Most sit in "${kpis.bestStage}"`} />
-          <RoiRow icon={TrendingUp} label="Likely to close" value={money(kpis.projectedClose)} hint="Won + weighted forecast" />
+          <RoiRow
+            icon={Target}
+            label="Average won deal"
+            value={money(kpis.avgDeal)}
+            hint="Revenue ÷ deals won"
+          />
+          <RoiRow
+            icon={Activity}
+            label="Deals still open"
+            value={String(kpis.openCount)}
+            hint={`Most sit in "${kpis.bestStage}"`}
+          />
+          <RoiRow
+            icon={TrendingUp}
+            label="Likely to close"
+            value={money(kpis.projectedClose)}
+            hint="Won + weighted forecast"
+          />
         </div>
         <p className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
           You have {kpis.openCount} open {kpis.openCount === 1 ? "deal" : "deals"} worth{" "}
-          <span className="font-semibold text-foreground">{money(kpis.pipelineValue)}</span>. Based on
-          stage probability, about{" "}
-          <span className="font-semibold text-foreground">{money(kpis.weighted)}</span> of that should
-          land — and you close{" "}
+          <span className="font-semibold text-foreground">{money(kpis.pipelineValue)}</span>. Based
+          on stage probability, about{" "}
+          <span className="font-semibold text-foreground">{money(kpis.weighted)}</span> of that
+          should land — and you close{" "}
           <span className="font-semibold text-foreground">{kpis.winRate}%</span> of the deals you
           decide.
         </p>
       </div>
-
     </AppShell>
   );
 }
@@ -152,7 +254,9 @@ const FUNNEL_COLORS = [
 function computeKpis(leads: Lead[]) {
   const wonLeads = leads.filter((l) => l.status === "won" || l.status === "closed");
   const lostLeads = leads.filter((l) => l.status === "lost");
-  const openLeads = leads.filter((l) => l.status !== "lost" && l.status !== "closed" && l.status !== "won");
+  const openLeads = leads.filter(
+    (l) => l.status !== "lost" && l.status !== "closed" && l.status !== "won",
+  );
   const wonValue = wonLeads.reduce((s, l) => s + Number(l.deal_value ?? 0), 0);
   const pipelineValue = openLeads.reduce((s, l) => s + Number(l.deal_value ?? 0), 0);
   const weighted = openLeads.reduce(
@@ -168,7 +272,10 @@ function computeKpis(leads: Lead[]) {
   let bestStage: LeadStatus = "new";
   let bestStageCount = 0;
   byStage.forEach((c, s) => {
-    if (c > bestStageCount) { bestStage = s; bestStageCount = c; }
+    if (c > bestStageCount) {
+      bestStage = s;
+      bestStageCount = c;
+    }
   });
 
   const projectedClose = wonValue + weighted;
@@ -227,12 +334,26 @@ function computeTrend(leads: Lead[]) {
 }
 
 function Kpi({
-  label, value, icon: Icon, tone, hint, isLoading,
+  label,
+  value,
+  icon: Icon,
+  tone,
+  hint,
+  isLoading,
 }: {
-  label: string; value: string; icon: React.ComponentType<{ className?: string }>;
-  tone: "primary" | "success" | "warning" | "chart"; hint?: string; isLoading?: boolean;
+  label: string;
+  value: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tone: "primary" | "success" | "warning" | "chart";
+  hint?: string;
+  isLoading?: boolean;
 }) {
-  const cls = { primary: "bg-primary/10 text-primary", success: "bg-success/15 text-success", warning: "bg-warning/15 text-warning", chart: "bg-chart-5/15 text-chart-5" }[tone];
+  const cls = {
+    primary: "bg-primary/10 text-primary",
+    success: "bg-success/15 text-success",
+    warning: "bg-warning/15 text-warning",
+    chart: "bg-chart-5/15 text-chart-5",
+  }[tone];
   return (
     <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-[var(--shadow-card)]">
       <div className="flex items-start justify-between">
@@ -242,16 +363,35 @@ function Kpi({
         </span>
       </div>
       <div className="mt-3">
-        {isLoading ? <Skeleton className="h-8 w-20" /> : <div className="text-3xl font-semibold tabular-nums tracking-tight">{value}</div>}
+        {isLoading ? (
+          <Skeleton className="h-8 w-20" />
+        ) : (
+          <div className="text-3xl font-semibold tabular-nums tracking-tight">{value}</div>
+        )}
       </div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
     </div>
   );
 }
 
-function Card({ title, subtitle, children, className }: { title: string; subtitle?: string; children: React.ReactNode; className?: string }) {
+function Card({
+  title,
+  subtitle,
+  children,
+  className,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className={cn("rounded-2xl border border-border/70 bg-card p-6 shadow-[var(--shadow-card)]", className)}>
+    <div
+      className={cn(
+        "rounded-2xl border border-border/70 bg-card p-6 shadow-[var(--shadow-card)]",
+        className,
+      )}
+    >
       <div className="mb-4">
         <h2 className="text-base font-semibold">{title}</h2>
         {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
@@ -261,7 +401,17 @@ function Card({ title, subtitle, children, className }: { title: string; subtitl
   );
 }
 
-function RoiRow({ icon: Icon, label, value, hint }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; hint?: string }) {
+function RoiRow({
+  icon: Icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
     <div className="flex items-center gap-3">
       <div className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-muted text-muted-foreground">
