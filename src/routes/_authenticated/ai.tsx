@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Sparkles, Copy, Loader2, Zap, Send, RefreshCw, Wand2 } from "lucide-react";
+import { Bot, Sparkles, Copy, Loader2, Zap, Send, RefreshCw, Wand2, MailWarning } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
@@ -14,7 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -22,7 +24,7 @@ import { listLeads } from "@/lib/leads";
 import { generateEmail, type EmailVariant } from "@/lib/ai.functions";
 import { DeliverabilityNotice } from "@/components/deliverability-notice";
 import { useUsage } from "@/components/usage-panel";
-import { suggestGoals, sendLeadEmail } from "@/lib/enrich.functions";
+import { suggestGoals, sendLeadEmail, getMailerStatus } from "@/lib/enrich.functions";
 import { GOAL_PRESETS } from "@/lib/goals";
 import { cn } from "@/lib/utils";
 
@@ -49,8 +51,14 @@ function AIPage() {
   const generate = useServerFn(generateEmail);
   const getGoals = useServerFn(suggestGoals);
   const send = useServerFn(sendLeadEmail);
+  const mailerStatus = useServerFn(getMailerStatus);
 
   const { data: leads } = useQuery({ queryKey: ["leads"], queryFn: listLeads });
+  const { data: usage } = useUsage();
+  const { data: mailer } = useQuery({
+    queryKey: ["mailer-status"],
+    queryFn: () => mailerStatus({}),
+  });
   const [selectedId, setSelectedId] = useState<string>(leadId ?? "");
   const [goal, setGoal] = useState(GOAL_PRESETS[0].goals[0]);
   const [loading, setLoading] = useState(false);
@@ -255,23 +263,26 @@ function AIPage() {
                 </div>
               )}
 
-              <div className="space-y-2 rounded-lg border border-border/60 p-2">
-                {GOAL_PRESETS.map((group) => (
-                  <div key={group.group}>
-                    <div className="px-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      {group.group}
-                    </div>
-                    <div className="mt-1 flex flex-wrap gap-1.5">
+              <Select value="" onValueChange={setGoal}>
+                <SelectTrigger aria-label="Browse goal presets">
+                  <SelectValue placeholder="Browse goal presets..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {GOAL_PRESETS.map((group) => (
+                    <SelectGroup key={group.group}>
+                      <SelectLabel>{group.group}</SelectLabel>
                       {group.goals.map((g) => (
-                        <GoalChip key={g} goal={g} active={goal === g} onPick={setGoal} />
+                        <SelectItem key={g} value={g} className="text-xs">
+                          {g}
+                        </SelectItem>
                       ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
 
               <Textarea
-                rows={3}
+                rows={2}
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
                 placeholder="Or write your own goal for this email..."
@@ -295,7 +306,7 @@ function AIPage() {
 
         <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-[var(--shadow-card)]">
           {!subject && !loading && (
-            <div className="grid h-full min-h-[400px] place-items-center text-center">
+            <div className="grid h-full min-h-[260px] place-items-center text-center">
               <div>
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary">
                   <Bot className="h-6 w-6" />
@@ -308,7 +319,7 @@ function AIPage() {
             </div>
           )}
           {loading && (
-            <div className="grid h-full min-h-[400px] place-items-center">
+            <div className="grid h-full min-h-[260px] place-items-center">
               <div className="text-center">
                 <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                 <p className="mt-3 text-sm text-muted-foreground">Crafting your email...</p>
@@ -389,10 +400,23 @@ function AIPage() {
                   className="mt-1 font-medium"
                 />
               </div>
+              {mailer && !mailer.connected && (
+                <div className="rounded-lg border border-warning/50 bg-warning/10 p-3 text-xs">
+                  <div className="flex items-center gap-1.5 font-medium text-foreground">
+                    <MailWarning className="h-3.5 w-3.5" aria-hidden="true" />
+                    No email provider is connected yet
+                  </div>
+                  <p className="mt-1 text-muted-foreground">
+                    Connect a sending domain to deliver emails automatically. Until then, Send
+                    saves the draft and opens your own mail app.
+                  </p>
+                </div>
+              )}
+              <DeliverabilityNotice usage={usage} />
               <div>
                 <Label className="text-xs text-muted-foreground">Body</Label>
                 <Textarea
-                  rows={14}
+                  rows={10}
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   className="mt-1 font-mono text-sm"
