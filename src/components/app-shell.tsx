@@ -2,7 +2,6 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
-  Sparkles,
   Bot,
   CreditCard,
   Settings,
@@ -11,8 +10,6 @@ import {
   KanbanSquare,
   Rocket,
   BarChart3,
-  Send,
-
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
@@ -21,13 +18,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import appIcon from "/app-icon.png?url";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/leads", label: "Leads", icon: Users },
   { to: "/pipeline", label: "Pipeline", icon: KanbanSquare },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/sequences", label: "Follow-ups", icon: Send },
   { to: "/ai", label: "AI Assistant", icon: Bot },
   { to: "/onboarding", label: "Company profile", icon: Rocket },
   { to: "/billing", label: "Billing", icon: CreditCard },
@@ -49,9 +46,10 @@ export function AppShell({
   return (
     <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 flex-none border-r border-border/60 bg-sidebar md:flex md:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border/60 bg-sidebar md:flex md:flex-col">
         <SidebarInner />
       </aside>
+      <div className="hidden w-64 flex-none md:block" aria-hidden />
 
       {/* Mobile sidebar */}
       <Sheet open={open} onOpenChange={setOpen}>
@@ -87,9 +85,13 @@ function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-2 border-b border-border/60 px-5">
-        <div className="grid h-8 w-8 place-items-center rounded-lg bg-[image:var(--gradient-primary)] shadow-[var(--shadow-elegant)]">
-          <Sparkles className="h-4 w-4 text-primary-foreground" />
-        </div>
+        <img
+          src={appIcon}
+          alt="SalesGenius AI logo"
+          width={32}
+          height={32}
+          className="h-8 w-8 rounded-lg shadow-[var(--shadow-elegant)]"
+        />
         <span className="text-sm font-semibold tracking-tight">SalesGenius AI</span>
       </div>
       <nav className="flex-1 space-y-1 p-3">
