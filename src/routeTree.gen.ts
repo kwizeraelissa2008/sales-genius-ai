@@ -13,7 +13,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedSequencesRouteImport } from './routes/_authenticated/sequences'
 import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
@@ -39,11 +38,6 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedSequencesRoute = AuthenticatedSequencesRouteImport.update({
-  id: '/sequences',
-  path: '/sequences',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPipelineRoute = AuthenticatedPipelineRouteImport.update({
@@ -92,7 +86,6 @@ export interface FileRoutesByFullPath {
   '/leads': typeof AuthenticatedLeadsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
-  '/sequences': typeof AuthenticatedSequencesRoute
   '/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRoutesByTo {
@@ -105,7 +98,6 @@ export interface FileRoutesByTo {
   '/leads': typeof AuthenticatedLeadsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/pipeline': typeof AuthenticatedPipelineRoute
-  '/sequences': typeof AuthenticatedSequencesRoute
   '/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRoutesById {
@@ -120,7 +112,6 @@ export interface FileRoutesById {
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
-  '/_authenticated/sequences': typeof AuthenticatedSequencesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRouteTypes {
@@ -135,7 +126,6 @@ export interface FileRouteTypes {
     | '/leads'
     | '/onboarding'
     | '/pipeline'
-    | '/sequences'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -148,7 +138,6 @@ export interface FileRouteTypes {
     | '/leads'
     | '/onboarding'
     | '/pipeline'
-    | '/sequences'
     | '/settings'
   id:
     | '__root__'
@@ -162,7 +151,6 @@ export interface FileRouteTypes {
     | '/_authenticated/leads'
     | '/_authenticated/onboarding'
     | '/_authenticated/pipeline'
-    | '/_authenticated/sequences'
     | '/_authenticated/settings'
   fileRoutesById: FileRoutesById
 }
@@ -200,13 +188,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/sequences': {
-      id: '/_authenticated/sequences'
-      path: '/sequences'
-      fullPath: '/sequences'
-      preLoaderRoute: typeof AuthenticatedSequencesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/pipeline': {
@@ -269,7 +250,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
-  AuthenticatedSequencesRoute: typeof AuthenticatedSequencesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
@@ -281,7 +261,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
-  AuthenticatedSequencesRoute: AuthenticatedSequencesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
@@ -296,13 +275,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
