@@ -98,3 +98,10 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
 
     return result;
   });
+
+export const getMailerStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async (): Promise<{ connected: boolean; provider: "resend" | "none" }> => {
+    const connected = Boolean(process.env['RESEND_API_KEY']);
+    return { connected, provider: connected ? "resend" : "none" };
+  });
