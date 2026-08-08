@@ -13,7 +13,7 @@ export const enrichLinks = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }): Promise<EnrichedPerson[]> => {
     await assertWithinQuota(context.supabase, context.userId, "enrichment", data.urls.length);
-    const apiKey = process.env['GROQ_API_KEY'];
+    const apiKey = process.env["GROQ_API_KEY"];
     const { data: profile } = await context.supabase
       .from("company_profiles")
       .select("*")
@@ -39,7 +39,7 @@ export const suggestGoals = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data, context }): Promise<string[]> => {
-    const apiKey = process.env['GROQ_API_KEY'];
+    const apiKey = process.env["GROQ_API_KEY"];
     const { data: profile } = await context.supabase
       .from("company_profiles")
       .select("*")
@@ -97,4 +97,11 @@ export const sendLeadEmail = createServerFn({ method: "POST" })
     }
 
     return result;
+  });
+
+export const getMailerStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async (): Promise<{ connected: boolean; provider: "resend" | "none" }> => {
+    const connected = Boolean(process.env["RESEND_API_KEY"]);
+    return { connected, provider: connected ? "resend" : "none" };
   });

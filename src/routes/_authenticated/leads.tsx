@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { LeadDialog } from "@/components/lead-dialog";
 import { EnrichDialog } from "@/components/enrich-dialog";
+import { LeadSheet } from "@/components/pipeline/lead-sheet";
 import { ScoreBar } from "@/components/score-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +60,7 @@ import {
   listLeads,
   deleteLead,
   createLead,
+  updateLead,
   heuristicScore,
   LEAD_STATUSES,
   STATUS_STYLES,
@@ -83,6 +85,7 @@ function LeadsPage() {
   const [toDelete, setToDelete] = useState<Lead | null>(null);
   const [importing, setImporting] = useState(false);
   const [enrichOpen, setEnrichOpen] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: leads, isLoading } = useQuery({
@@ -125,7 +128,9 @@ function LeadsPage() {
 
   async function onImportFile(file: File) {
     if (!/\.csv$/i.test(file.name)) {
-      toast.error("Please upload a .csv file (Excel .xlsx is not supported — export as CSV first).");
+      toast.error(
+        "Please upload a .csv file (Excel .xlsx is not supported — export as CSV first).",
+      );
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -158,14 +163,23 @@ function LeadsPage() {
             const last = pick(row, ["last_name", "lastname", "surname", "family name"]);
             const full = pick(row, ["name", "full name", "fullname", "contact", "contact name"]);
             const name = (full || `${first} ${last}`.trim()).trim();
-            if (!name) { skipped++; continue; }
+            if (!name) {
+              skipped++;
+              continue;
+            }
             const email = pick(row, ["email", "email address", "e-mail", "mail"]) || null;
-            const company = pick(row, ["company", "company name", "organization", "organisation", "account"]) || null;
+            const company =
+              pick(row, ["company", "company name", "organization", "organisation", "account"]) ||
+              null;
             const job_title = pick(row, ["job_title", "title", "position", "role"]) || null;
             const notes = pick(row, ["notes", "note", "comments", "description"]) || null;
             try {
               await createLead({
-                name, email, company, job_title, notes,
+                name,
+                email,
+                company,
+                job_title,
+                notes,
                 status: "new",
                 lead_score: heuristicScore({ job_title, company, email }),
               });
@@ -177,12 +191,16 @@ function LeadsPage() {
           }
           qc.invalidateQueries({ queryKey: ["leads"] });
           if (ok > 0) {
-            toast.success(`Imported ${ok} lead${ok === 1 ? "" : "s"}${skipped ? ` (${skipped} skipped: missing name)` : ""}`);
+            toast.success(
+              `Imported ${ok} lead${ok === 1 ? "" : "s"}${skipped ? ` (${skipped} skipped: missing name)` : ""}`,
+            );
           }
           if (errors.length) {
             toast.error(errors.join(" · "));
           } else if (ok === 0) {
-            toast.error("No rows imported. Ensure your CSV has a 'name' (or first_name/last_name) column.");
+            toast.error(
+              "No rows imported. Ensure your CSV has a 'name' (or first_name/last_name) column.",
+            );
           }
         } catch (err) {
           toast.error(err instanceof Error ? err.message : "Import failed");
@@ -219,7 +237,11 @@ function LeadsPage() {
             }}
           />
           <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={importing}>
-            {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+            {importing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-2 h-4 w-4" />
+            )}
             Import CSV
           </Button>
           <Button variant="outline" onClick={() => setEnrichOpen(true)}>
@@ -228,7 +250,6 @@ function LeadsPage() {
           <Button onClick={openAdd} className="shadow-[var(--shadow-elegant)]">
             <Plus className="mr-2 h-4 w-4" /> Add lead
           </Button>
-
         </div>
       </div>
 
@@ -242,7 +263,10 @@ function LeadsPage() {
             className="pl-9"
           />
         </div>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as LeadStatus | "all")}>
+        <Select
+          value={statusFilter}
+          onValueChange={(v) => setStatusFilter(v as LeadStatus | "all")}
+        >
           <SelectTrigger className="w-full md:w-48">
             <SelectValue />
           </SelectTrigger>
@@ -294,16 +318,34 @@ function LeadsPage() {
               filtered.map((lead) => (
                 <TableRow key={lead.id} className="group">
                   <TableCell>
-                    <div className="font-medium">{lead.name}</div>
-                    {lead.email && <div className="text-xs text-muted-foreground">{lead.email}</div>}
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(lead.id)}
+                      className="text-left"
+                      aria-label={`View details for ${lead.name}`}
+                    >
+                      <div className="font-medium underline-offset-4 hover:text-primary hover:underline">
+                        {lead.name}
+                      </div>
+                      {lead.email && (
+                        <div className="text-xs text-muted-foreground">{lead.email}</div>
+                      )}
+                    </button>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{lead.company ?? "—"}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{lead.job_title ?? "—"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {lead.company ?? "—"}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {lead.job_title ?? "—"}
+                  </TableCell>
                   <TableCell>
                     <ScoreBar lead={lead} />
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className={cn("capitalize font-medium", STATUS_STYLES[lead.status])}>
+                    <Badge
+                      variant="secondary"
+                      className={cn("capitalize font-medium", STATUS_STYLES[lead.status])}
+                    >
                       {lead.status}
                     </Badge>
                   </TableCell>
@@ -315,13 +357,14 @@ function LeadsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setOpenId(lead.id)}>
+                          <Search className="mr-2 h-4 w-4" /> View details
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(lead)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() =>
-                            navigate({ to: "/ai", search: { leadId: lead.id } })
-                          }
+                          onClick={() => navigate({ to: "/ai", search: { leadId: lead.id } })}
                         >
                           <Sparkles className="mr-2 h-4 w-4" /> Generate email
                         </DropdownMenuItem>
@@ -341,6 +384,19 @@ function LeadsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <LeadSheet
+        lead={openId ? ((leads ?? []).find((l) => l.id === openId) ?? null) : null}
+        onOpenChange={(open) => !open && setOpenId(null)}
+        onSave={async (id, patch) => {
+          await updateLead(id, patch);
+          await qc.invalidateQueries({ queryKey: ["leads"] });
+        }}
+        onDelete={async (id) => {
+          await deleteLead(id);
+          await qc.invalidateQueries({ queryKey: ["leads"] });
+        }}
+      />
 
       <EnrichDialog
         open={enrichOpen}
@@ -377,4 +433,3 @@ function LeadsPage() {
     </AppShell>
   );
 }
-
