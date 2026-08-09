@@ -159,18 +159,18 @@ function AIPage() {
     },
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["leads"] });
+      setConfirmOpen(false);
       if (res.delivered) {
         toast.success(`Email sent to ${lead?.email} · lead marked as contacted`);
       } else {
         toast.error(res.reason ?? "Sending is not configured yet", {
-          description: "Draft saved. Opening your mail app instead.",
+          description: "Your draft was saved so nothing is lost.",
         });
-        const href = `mailto:${lead?.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(href, "_blank");
       }
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
   });
+
 
   const suggested = aiGoals.data ?? [];
 
