@@ -24,17 +24,20 @@ export async function sendViaResend(args: {
     };
   }
   const from = args.fromEmail || process.env['SENDER_EMAIL'] || "onboarding@resend.dev";
+  // Replies go straight back to the signed-in user's own inbox.
+  const displayName = args.replyTo ? `${args.fromName} (${args.replyTo})` : args.fromName;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      from: `${args.fromName} <${from}>`,
+      from: `${displayName} <${from}>`,
       to: [args.to],
       subject: args.subject,
       text: args.body,
       ...(args.replyTo ? { reply_to: args.replyTo } : {}),
     }),
   });
+
   if (!res.ok) {
     const text = await res.text();
     return { delivered: false, provider: "resend", reason: `Send failed (${res.status}): ${text}` };
