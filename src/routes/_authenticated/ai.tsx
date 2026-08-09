@@ -77,6 +77,8 @@ function AIPage() {
   const [mode, setMode] = useState<string | null>(null);
   const [variants, setVariants] = useState<EmailVariant[]>([]);
   const [tone, setTone] = useState<string>("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
 
   useEffect(() => {
     if (leadId) setSelectedId(leadId);
