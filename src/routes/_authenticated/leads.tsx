@@ -238,7 +238,7 @@ function LeadsPage() {
           <input
             ref={fileRef}
             type="file"
-            accept=".csv"
+            accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.xlsm,.ods"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
@@ -251,7 +251,8 @@ function LeadsPage() {
             ) : (
               <Upload className="mr-2 h-4 w-4" />
             )}
-            Import CSV
+            Import file
+
           </Button>
           <Button variant="outline" onClick={() => setEnrichOpen(true)}>
             <Link2 className="mr-2 h-4 w-4" /> Enrich from link
