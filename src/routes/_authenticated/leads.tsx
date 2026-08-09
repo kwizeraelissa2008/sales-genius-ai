@@ -126,14 +126,36 @@ function LeadsPage() {
     }
   }
 
-  async function onImportFile(file: File) {
-    if (!/\.csv$/i.test(file.name)) {
-      toast.error(
-        "Please upload a .csv file (Excel .xlsx is not supported — export as CSV first).",
-      );
-      if (fileRef.current) fileRef.current.value = "";
-      return;
+  async function parseRows(file: File): Promise<Record<string, string>[]> {
+    const name = file.name.toLowerCase();
+    if (/\.(xlsx|xls|xlsm|ods)$/.test(name)) {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+      const sheetName = wb.SheetNames[0];
+      const sheet = sheetName ? wb.Sheets[sheetName] : undefined;
+      if (!sheet) return [];
+      return XLSX.utils.sheet_to_json<Record<string, string>>(sheet, { defval: "", raw: false });
     }
+    if (/\.json$/.test(name)) {
+      const parsed = JSON.parse(await file.text());
+      const arr = Array.isArray(parsed) ? parsed : (parsed?.leads ?? parsed?.data ?? []);
+      return (Array.isArray(arr) ? arr : []).map((r: Record<string, unknown>) =>
+        Object.fromEntries(Object.entries(r ?? {}).map(([k, v]) => [k, v == null ? "" : String(v)])),
+      );
+    }
+    // CSV / TSV / TXT and anything else delimiter-based
+    const text = await file.text();
+    const result = Papa.parse<Record<string, string>>(text, {
+      header: true,
+      skipEmptyLines: true,
+    });
+    if (!result.data.length && result.errors.length) {
+      throw new Error(result.errors[0]?.message ?? "Could not read this file");
+    }
+    return result.data;
+  }
+
+  async function onImportFile(file: File) {
     setImporting(true);
     const pick = (row: Record<string, string>, keys: string[]) => {
       const norm = (s: string) => s.toLowerCase().replace(/[\s_-]+/g, "");
@@ -144,78 +166,65 @@ function LeadsPage() {
       }
       return "";
     };
-    Papa.parse<Record<string, string>>(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        try {
-          const rows = results.data;
-          if (!rows.length) {
-            toast.error("CSV appears empty or missing a header row.");
-            return;
-          }
-          let ok = 0;
-          let skipped = 0;
-          const errors: string[] = [];
-          for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const first = pick(row, ["first_name", "firstname", "given name"]);
-            const last = pick(row, ["last_name", "lastname", "surname", "family name"]);
-            const full = pick(row, ["name", "full name", "fullname", "contact", "contact name"]);
-            const name = (full || `${first} ${last}`.trim()).trim();
-            if (!name) {
-              skipped++;
-              continue;
-            }
-            const email = pick(row, ["email", "email address", "e-mail", "mail"]) || null;
-            const company =
-              pick(row, ["company", "company name", "organization", "organisation", "account"]) ||
-              null;
-            const job_title = pick(row, ["job_title", "title", "position", "role"]) || null;
-            const notes = pick(row, ["notes", "note", "comments", "description"]) || null;
-            try {
-              await createLead({
-                name,
-                email,
-                company,
-                job_title,
-                notes,
-                status: "new",
-                lead_score: heuristicScore({ job_title, company, email }),
-              });
-              ok += 1;
-            } catch (err) {
-              const msg = err instanceof Error ? err.message : String(err);
-              if (errors.length < 3) errors.push(`Row ${i + 2}: ${msg}`);
-            }
-          }
-          qc.invalidateQueries({ queryKey: ["leads"] });
-          if (ok > 0) {
-            toast.success(
-              `Imported ${ok} lead${ok === 1 ? "" : "s"}${skipped ? ` (${skipped} skipped: missing name)` : ""}`,
-            );
-          }
-          if (errors.length) {
-            toast.error(errors.join(" · "));
-          } else if (ok === 0) {
-            toast.error(
-              "No rows imported. Ensure your CSV has a 'name' (or first_name/last_name) column.",
-            );
-          }
-        } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Import failed");
-        } finally {
-          setImporting(false);
-          if (fileRef.current) fileRef.current.value = "";
+    try {
+      const rows = await parseRows(file);
+      if (!rows.length) {
+        toast.error("That file looks empty or is missing a header row.");
+        return;
+      }
+      let ok = 0;
+      let skipped = 0;
+      const errors: string[] = [];
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const first = pick(row, ["first_name", "firstname", "given name"]);
+        const last = pick(row, ["last_name", "lastname", "surname", "family name"]);
+        const full = pick(row, ["name", "full name", "fullname", "contact", "contact name"]);
+        const name = (full || `${first} ${last}`.trim()).trim();
+        if (!name) {
+          skipped++;
+          continue;
         }
-      },
-      error: (err) => {
-        toast.error(`Parse error: ${err.message}`);
-        setImporting(false);
-        if (fileRef.current) fileRef.current.value = "";
-      },
-    });
+        const email = pick(row, ["email", "email address", "e-mail", "mail"]) || null;
+        const company =
+          pick(row, ["company", "company name", "organization", "organisation", "account"]) || null;
+        const job_title = pick(row, ["job_title", "title", "position", "role"]) || null;
+        const notes = pick(row, ["notes", "note", "comments", "description"]) || null;
+        try {
+          await createLead({
+            name,
+            email,
+            company,
+            job_title,
+            notes,
+            status: "new",
+            lead_score: heuristicScore({ job_title, company, email }),
+          });
+          ok += 1;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (errors.length < 3) errors.push(`Row ${i + 2}: ${msg}`);
+        }
+      }
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      if (ok > 0) {
+        toast.success(
+          `Imported ${ok} lead${ok === 1 ? "" : "s"}${skipped ? ` (${skipped} skipped: missing name)` : ""}`,
+        );
+      }
+      if (errors.length) {
+        toast.error(errors.join(" · "));
+      } else if (ok === 0) {
+        toast.error("No rows imported. Make sure there's a name (or first_name/last_name) column.");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Import failed");
+    } finally {
+      setImporting(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
   }
+
 
   return (
     <AppShell title="Leads" userEmail={user.email}>
