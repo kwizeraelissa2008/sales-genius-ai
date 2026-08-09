@@ -18,6 +18,17 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +88,8 @@ function AIPage() {
   const [mode, setMode] = useState<string | null>(null);
   const [variants, setVariants] = useState<EmailVariant[]>([]);
   const [tone, setTone] = useState<string>("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
 
   useEffect(() => {
     if (leadId) setSelectedId(leadId);
@@ -159,18 +172,18 @@ function AIPage() {
     },
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["leads"] });
+      setConfirmOpen(false);
       if (res.delivered) {
         toast.success(`Email sent to ${lead?.email} · lead marked as contacted`);
       } else {
         toast.error(res.reason ?? "Sending is not configured yet", {
-          description: "Draft saved. Opening your mail app instead.",
+          description: "Your draft was saved so nothing is lost.",
         });
-        const href = `mailto:${lead?.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.open(href, "_blank");
       }
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Send failed"),
   });
+
 
   const suggested = aiGoals.data ?? [];
 
@@ -390,19 +403,63 @@ function AIPage() {
                   >
                     <Copy className="mr-2 h-4 w-4" /> Copy
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => sending.mutate()}
-                    disabled={sending.isPending || !lead?.email}
-                    className="shadow-[var(--shadow-elegant)]"
-                  >
-                    {sending.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="mr-2 h-4 w-4" />
-                    )}
-                    Send email
-                  </Button>
+                  <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        disabled={sending.isPending || !lead?.email || !subject.trim() || !body.trim()}
+                        className="shadow-[var(--shadow-elegant)]"
+                      >
+                        {sending.isPending ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Send className="mr-2 h-4 w-4" />
+                        )}
+                        Send email
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Send this email now?</AlertDialogTitle>
+                        <AlertDialogDescription asChild>
+                          <div className="space-y-2 text-sm">
+                            <p>
+                              We&apos;ll deliver it straight from the app — no need to open Gmail or
+                              any other mail app.
+                            </p>
+                            <div className="rounded-lg border border-border/70 bg-muted/40 p-3 text-xs">
+                              <p>
+                                <span className="text-muted-foreground">From:</span> {user.email}
+                              </p>
+                              <p>
+                                <span className="text-muted-foreground">To:</span> {lead?.email}
+                              </p>
+                              <p className="line-clamp-2">
+                                <span className="text-muted-foreground">Subject:</span> {subject}
+                              </p>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Replies land in your inbox and the lead moves to “Contacted”.
+                            </p>
+                          </div>
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel disabled={sending.isPending}>Cancel</AlertDialogCancel>
+                        <Button
+                          onClick={() => sending.mutate()}
+                          disabled={sending.isPending}
+                          className="shadow-[var(--shadow-elegant)]"
+                        >
+                          {sending.isPending && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          Confirm &amp; send
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
                 </div>
               </div>
               <div>
@@ -422,7 +479,8 @@ function AIPage() {
                   </div>
                   <p className="mt-1 text-muted-foreground">
                     Connect a sending domain to deliver emails automatically. Until then, Send saves
-                    the draft and opens your own mail app.
+                    the draft instead of delivering it.
+
                   </p>
                 </div>
               )}

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -21,10 +21,59 @@ export const Route = createFileRoute("/auth")({
     meta: [
       { title: "Sign in — SalesGenius AI" },
       { name: "description", content: "Sign in or create your SalesGenius AI account." },
+      { property: "og:title", content: "Sign in — SalesGenius AI" },
+      {
+        property: "og:description",
+        content: "Sign in or create your SalesGenius AI account.",
+      },
     ],
   }),
   component: AuthPage,
 });
+
+const GMAIL_RE = /^[^\s@]+@gmail\.com$/i;
+
+/** Password field with a show/hide (view mode) toggle. */
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  placeholder,
+  autoComplete,
+  minLength,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  autoComplete?: string;
+  minLength?: number;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative mt-1.5">
+      <Input
+        id={id}
+        type={visible ? "text" : "password"}
+        required
+        {...(minLength ? { minLength } : {})}
+        {...(autoComplete ? { autoComplete } : {})}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="pr-10"
+        {...(placeholder ? { placeholder } : {})}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-2 text-muted-foreground hover:text-foreground"
+      >
+        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
 
 function AuthPage() {
   const { mode } = Route.useSearch();
@@ -32,7 +81,6 @@ function AuthPage() {
   const [tab, setTab] = useState<"signin" | "signup">(mode ?? "signin");
 
   useEffect(() => {
-    // If already signed in, bounce to dashboard.
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/dashboard", replace: true });
     });
@@ -109,6 +157,7 @@ function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -123,10 +172,27 @@ function SignInForm() {
     navigate({ to: "/dashboard", replace: true });
   }
 
+  async function onForgot() {
+    if (!GMAIL_RE.test(email.trim())) {
+      toast.error("Enter your Gmail address above first, then tap “Forgot password”.");
+      return;
+    }
+    setResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetting(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Reset link sent — check your Gmail inbox.");
+  }
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="signin-email">Email</Label>
+        <Label htmlFor="signin-email">Gmail address</Label>
         <Input
           id="signin-email"
           type="email"
@@ -135,19 +201,26 @@ function SignInForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1.5"
-          placeholder="you@company.com"
+          placeholder="you@gmail.com"
         />
       </div>
       <div>
-        <Label htmlFor="signin-password">Password</Label>
-        <Input
+        <div className="flex items-center justify-between">
+          <Label htmlFor="signin-password">Password</Label>
+          <button
+            type="button"
+            onClick={onForgot}
+            disabled={resetting}
+            className="text-xs font-medium text-primary hover:underline disabled:opacity-60"
+          >
+            {resetting ? "Sending…" : "Forgot password?"}
+          </button>
+        </div>
+        <PasswordInput
           id="signin-password"
-          type="password"
-          required
-          autoComplete="current-password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1.5"
+          onChange={setPassword}
+          autoComplete="current-password"
           placeholder="••••••••"
         />
       </div>
@@ -165,17 +238,28 @@ function SignUpForm() {
   const [companyName, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const mismatch = confirm.length > 0 && confirm !== password;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!GMAIL_RE.test(email.trim())) {
+      toast.error("Please sign up with a Gmail address (…@gmail.com) so password recovery works.");
+      return;
+    }
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters.");
       return;
     }
+    if (password !== confirm) {
+      toast.error("Passwords do not match.");
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
         emailRedirectTo: window.location.origin,
@@ -217,7 +301,7 @@ function SignUpForm() {
         </div>
       </div>
       <div>
-        <Label htmlFor="signup-email">Work email</Label>
+        <Label htmlFor="signup-email">Gmail address</Label>
         <Input
           id="signup-email"
           type="email"
@@ -226,24 +310,41 @@ function SignUpForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1.5"
-          placeholder="you@company.com"
+          placeholder="you@gmail.com"
         />
+        <p className="mt-1 text-xs text-muted-foreground">
+          Gmail only — we send your password reset code there, and your outreach replies come back to
+          it.
+        </p>
       </div>
       <div>
         <Label htmlFor="signup-password">Password</Label>
-        <Input
+        <PasswordInput
           id="signup-password"
-          type="password"
-          required
-          minLength={6}
-          autoComplete="new-password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1.5"
+          onChange={setPassword}
+          autoComplete="new-password"
+          minLength={6}
           placeholder="At least 6 characters"
         />
       </div>
-      <Button type="submit" className="w-full shadow-[var(--shadow-elegant)]" disabled={loading}>
+      <div>
+        <Label htmlFor="signup-confirm">Confirm password</Label>
+        <PasswordInput
+          id="signup-confirm"
+          value={confirm}
+          onChange={setConfirm}
+          autoComplete="new-password"
+          minLength={6}
+          placeholder="Re-enter your password"
+        />
+        {mismatch && <p className="mt-1 text-xs text-destructive">Passwords do not match.</p>}
+      </div>
+      <Button
+        type="submit"
+        className="w-full shadow-[var(--shadow-elegant)]"
+        disabled={loading || mismatch}
+      >
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Create account
       </Button>
@@ -264,7 +365,6 @@ function GoogleButton({ label }: { label: string }) {
       return;
     }
     if (result.redirected) return;
-    // Popup path: session already set — nav to dashboard.
     window.location.href = "/dashboard";
   }
   return (
