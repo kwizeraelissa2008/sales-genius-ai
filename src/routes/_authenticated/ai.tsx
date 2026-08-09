@@ -479,7 +479,8 @@ function AIPage() {
                   </div>
                   <p className="mt-1 text-muted-foreground">
                     Connect a sending domain to deliver emails automatically. Until then, Send saves
-                    the draft and opens your own mail app.
+                    the draft instead of delivering it.
+
                   </p>
                 </div>
               )}
