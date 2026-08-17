@@ -1,172 +1,479 @@
-# Sales Genius AI
+# SalesGenius AI 🚀
 
-Act as an Expert Full-Stack Developer, UI/UX Designer, and SaaS Product Manager. Build a complete, production-ready, multi-tenant SaaS application called "SalesGenius AI" using the Lovable tech stack: React, TypeScript, Tailwind CSS, shadcn/ui, Lucide Icons, and Supabase (Auth, Database, Edge Functions).
+> **Turn more prospects into customers with an AI-powered sales assistant.**
 
-This app is an AI-powered sales intelligence platform that scores leads, generates personalized emails using Groq AI, and processes payments. It must look stunning, function flawlessly, and be ready to deploy and monetize immediately.
+SalesGenius AI helps salespeople and businesses understand their leads, identify the opportunities that deserve attention, create personalized outreach, and stay focused on the actions most likely to move a deal forward.
 
-##  UI/UX DESIGN SYSTEM
+Instead of forcing sales teams to manually analyze hundreds of leads and decide what to do next, SalesGenius turns sales data into clear, actionable priorities.
 
-- **Theme:** Modern, clean, professional SaaS dashboard. Support Dark/Light mode.
+---
 
-- **Colors:** Primary: `#3B82F6` (Blue), Background: `#F8FAFC` (Light) / `#0F172A` (Dark), Cards: White / `#1E293B`.
+## 🎯 The Problem
 
-- **Layout:** Fixed left sidebar navigation (collapsible on mobile), top header with user profile/notifications, main content area with generous padding.
+Sales teams often lose opportunities not because they have no leads, but because they don't know:
 
-- **Components:** Use shadcn/ui for all UI elements (Buttons, Cards, Tables, Dialogs, Toasts, Dropdowns, Badges).
+* Which leads are actually worth pursuing
+* Who should be contacted first
+* What message to send
+* Which opportunities are going cold
+* When a follow-up is needed
+* Where potential revenue is being lost
 
-- **Charts:** Use Recharts for analytics dashboards.
+As the number of leads grows, spreadsheets and disconnected tools make this increasingly difficult.
 
-- **Micro-interactions:** Add hover states, smooth transitions, loading skeletons, and toast notifications for all actions.
+**SalesGenius AI was built to make that decision-making process simpler.**
 
-## 🗄️ SUPABASE DATABASE SCHEMA
+---
 
-Create the following tables with Row Level Security (RLS) enabled:
+## 💡 The Solution
 
-1. `profiles`: id (uuid, references auth.users), full_name, company_name, role, created_at.
+SalesGenius AI acts as an intelligent sales assistant.
 
-2. `leads`: id, user_id (references profiles), name, email, company, job_title, lead_score (int), status (new, contacted, interested, closed), notes, created_at.
+It transforms raw leads into actionable sales opportunities by helping users answer three important questions:
 
-3. `email_templates`: id, lead_id, subject, body, ai_mode_used, created_at.
+### 1. Who should I contact?
 
-4. `payments`: id, user_id, amount, currency, provider (stripe, mtn_momo), status, transaction_id, receiver_phone, created_at.
+SalesGenius evaluates leads and identifies high-priority opportunities.
 
-5. `subscriptions`: id, user_id, plan (free, pro, business), status, current_period_end.
+### 2. What should I say?
 
-##  AI & EDGE FUNCTIONS (GROQ API)
+The system generates personalized outreach based on the prospect and available sales context.
 
-Create Supabase Edge Functions for AI features. Use Groq API (Llama 3 70B) for speed. 
+### 3. What should I do next?
 
-*CRITICAL:* Implement a Mock Fallback. If Groq API fails, return heuristic-based scores (e.g., CEO = 95) and template emails.
+Sales insights help users understand which opportunities need attention, which are progressing, and which may require follow-up.
 
-1. `score-lead`: Takes lead data, calls Groq, returns 0-100 score and strategy.
+The goal is simple:
 
-2. `generate-email`: Takes lead data, calls Groq, returns personalized email subject and body.
+> **Less guessing. Less manual work. More focused selling.**
 
-Include an `"ai_mode"` flag in responses ("groq" or "mock").
+---
 
-## 💳 PAYMENT INTEGRATION (GETTING PAID)
+## ✨ What SalesGenius AI Provides
 
-Integrate Stripe for global cards and Flutterwave/MTN MoMo for Africa.
+### 🎯 Lead Prioritization
 
-*CRITICAL:* All mobile money settlements and owner payouts must route to `+250738481289` (Rwanda).
+Identify the prospects that deserve attention first instead of treating every lead equally.
 
-1. Create a beautiful Pricing Page with 3 tiers: Free ($0), Pro ($49/mo), Business ($199/mo).
+Each lead can be evaluated and assigned a priority score to help salespeople focus their time.
 
-2. Implement a Checkout flow that handles Stripe Checkout and Mobile Money prompts.
+### ✍️ Personalized Outreach
 
-3. Create a Webhook Edge Function to handle payment success, update the `subscriptions` table, and log the `payment`.
+Generate personalized sales messages using information about the prospect, company, role, and sales context.
 
-##  PAGES & ROUTES
+Instead of starting every email from a blank page, users can quickly create relevant outreach.
 
-1. **Landing Page (`/`)**: Beautiful marketing page. Hero section with "Close 3x more deals with AI", feature grid, pricing table, and "Get Started" CTA.
+### 📊 Sales Insights
 
-2. **Auth (`/login`, `/signup`)**: Clean, centered forms using Supabase Auth.
+Understand what's happening across the sales pipeline.
 
-3. **Dashboard (`/dashboard`)**: 
+Users can monitor important indicators such as:
 
-   - 4 Metric Cards: Total Leads, High Priority, Avg Score, Conversion Rate.
+* Lead volume
+* High-priority opportunities
+* Lead scores
+* Conversion performance
+* Pipeline activity
 
-   - Recharts Bar Chart: Leads by Status.
+### 🔎 Lead Organization
 
-   - Recent Activity List.
+Search, filter, sort, and organize leads based on useful sales signals.
 
-4. **Leads (`/leads`)**: 
+This makes it easier to find the right opportunities without manually going through large spreadsheets.
 
-   - Data table with search, filter by status, and sort.
+### 🤖 AI-Assisted Decision Making
 
-   - "Add Lead" button opens a Dialog form.
+SalesGenius uses AI to reduce repetitive sales analysis and help users make faster decisions.
 
-   - "Import CSV" button for bulk upload.
+The AI is designed to support the salesperson—not replace the salesperson.
 
-   - Action buttons per row: View, Edit, Generate Email, Delete.
+---
 
-5. **AI Assistant (`/ai`)**: 
+## 🧠 How It Works
 
-   - Chat-like interface. User selects a lead from a dropdown, clicks "Generate Email", and the AI streams the response.
+```text
+                SALES LEADS
+                     │
+                     ▼
+             ┌───────────────┐
+             │   SalesGenius  │
+             │      AI        │
+             └───────┬───────┘
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+      PRIORITIZE   UNDERSTAND   GENERATE
+       LEADS       OPPORTUNITY   OUTREACH
+          │          │          │
+          └──────────┼──────────┘
+                     ▼
+              ACTIONABLE TASKS
+                     │
+                     ▼
+               SALES ACTION
+                     │
+                     ▼
+              BETTER OPPORTUNITIES
+```
 
-   - Show "AI Mode: Groq" or "AI Mode: Mock" badge.
+The system turns lead data into practical actions instead of simply displaying information.
 
-6. **Billing (`/billing`)**: 
+---
 
-   - Current plan status.
+## 🖥️ Product Experience
 
-   - Upgrade/Downgrade buttons.
+SalesGenius is designed around a simple principle:
 
-   - Payment history table.
+> **Users shouldn't have to understand the technology to get the value.**
 
-7. **Settings (`/settings`)**: Profile update, change password, API keys management.
+Instead of making users learn complex sales terminology or AI workflows, the interface focuses on questions they already have:
 
-## 🚀 EXECUTION PLAN FOR LOVABLE
+* **Who should I contact?**
+* **Who is most likely to buy?**
+* **What should I say?**
+* **Who needs a follow-up?**
+* **Where should I focus today?**
 
-**Step 1: Setup & Auth**
+---
 
-- Initialize the project with the design system.
+## 🏗️ Core Product Areas
 
-- Setup Supabase Auth (Login/Signup pages).
+### Dashboard
 
-- Create the `profiles` table and auto-create profile on signup.
+The dashboard gives users a quick overview of their sales situation and highlights opportunities that may require attention.
 
-**Step 2: Core Features (Leads)**
+Example insights:
 
-- Create the `leads` table.
+```text
+1,284
+Leads
 
-- Build the `/leads` page with the data table, add/edit dialogs, and search/filter.
+94
+High-priority opportunities
 
-- Build the `/dashboard` page with metrics and charts.
+37
+High-intent prospects
 
-**Step 3: AI Integration**
+12
+Follow-ups due
+```
 
-- Create the Supabase Edge Functions for Groq AI (with Mock fallback).
+The purpose is not simply to show statistics.
 
-- Build the `/ai` page to call these functions and display results.
+The dashboard is designed to answer:
 
-**Step 4: Payments & Billing**
+> **"What should I do next?"**
 
-- Create `payments` and `subscriptions` tables.
+---
 
-- Build the `/billing` page with pricing cards.
+### Lead Management
 
-- Implement the checkout flow (Stripe + Mobile Money routing to +250738481289).
+Users can manage their sales leads in one place.
 
-**Step 5: Polish & Landing Page**
+Lead information can be organized using:
 
-- Build the public Landing Page (`/`).
+* Priority
+* Status
+* Score
+* Sales signals
+* Company
+* Role
+* Other available context
 
-- Add loading skeletons, toast notifications, and error handling.
+---
 
-- Ensure mobile responsiveness.
+### AI Outreach
 
-## ⚠️ CRITICAL RULES
+Users can generate personalized sales messages without manually writing every message from scratch.
 
-1. Write 100% complete, working code. Do not use placeholders.
+The system uses available lead information to produce more relevant outreach.
 
-2. Ensure all Supabase queries use the authenticated user's ID for security.
+---
 
-3. Make the UI look like a premium $100/mo SaaS (Linear/Vercel style).
+### Sales Analytics
 
-4. Ensure the AI fallback works perfectly if the Groq API key is missing.
+SalesGenius provides visibility into pipeline activity and performance.
 
-5. Hardcode the payment receiver phone number as `+250738481289` in the payment logic.
+Users can use analytics to identify:
 
-Start building Step 1 now. Create the project structure, setup Supabase, and build the Landing Page and Auth flows.
+* Opportunities
+* Conversion trends
+* Lead health
+* Pipeline movement
+* Areas requiring attention
 
-This project was built with [Lovable](https://lovable.dev).
+---
 
-## Build with Lovable
+## 🛠️ Technology Stack
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/09a3badd-5bc3-4ace-aeea-ab353118a842).
+SalesGenius AI is built using modern web technologies.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+### Frontend
 
-## Development
+* React
+* TypeScript
+* Vite
+* Tailwind CSS
+* shadcn/ui
+* Lucide React
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+### Backend / Platform
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+* Supabase
+* Supabase Authentication
+* PostgreSQL
+* Supabase Edge Functions
+
+### AI
+
+* Llama 3
+* Groq API
+
+### Development
+
+* Git
+* GitHub
+* Lovable
+* VS Code / Cursor
+
+---
+
+## 📁 Project Structure
+
+```text
+salesgenius-ai/
+│
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── lib/
+│   ├── integrations/
+│   └── App.tsx
+│
+├── public/
+│
+├── supabase/
+│   ├── functions/
+│   └── migrations/
+│
+├── package.json
+├── vite.config.ts
+├── tailwind.config.ts
+├── tsconfig.json
+└── README.md
+```
+
+> The exact structure may evolve as the project develops.
+
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+Make sure you have installed:
+
+* Node.js
+* npm
+* Git
+
+You will also need the required Supabase and AI API credentials for the parts of the application that depend on external services.
+
+---
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/salesgenius-ai.git
+```
+
+Move into the project:
+
+```bash
+cd salesgenius-ai
+```
+
+---
+
+## 2. Install dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 3. Configure environment variables
+
+Create a `.env` file in the project root.
+
+Example:
+
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+For server-side functions, configure the required AI/API secrets in the appropriate Supabase environment rather than exposing private keys in the frontend.
+
+> **Never commit API keys, passwords, database credentials, or other secrets to GitHub.**
+
+---
+
+## 4. Start the development server
+
+```bash
 npm run dev
 ```
+
+The application should then be available through the local development URL displayed by Vite.
+
+---
+
+# 🔐 Security
+
+Security is an important part of the application architecture.
+
+SalesGenius is designed to use:
+
+* Authentication
+* Database access controls
+* Environment variables for secrets
+* Server-side handling of sensitive API credentials
+* Row-level security where appropriate
+
+Private API keys should never be exposed in client-side code.
+
+---
+
+# 🧪 Development
+
+Run the production build:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+Before pushing changes:
+
+```bash
+git status
+git add .
+git commit -m "describe your changes"
+git push
+```
+
+---
+
+# 🌍 Vision
+
+SalesGenius AI is built around a broader idea:
+
+> **Small businesses should not need a large sales department to sell intelligently.**
+
+Many businesses already have potential customers in their pipeline. The problem is often knowing where to focus limited time and attention.
+
+SalesGenius aims to make intelligent sales assistance accessible to founders, freelancers, small businesses, and growing sales teams.
+
+The long-term vision is to build an AI sales assistant that doesn't simply display sales data but actively helps users understand their opportunities and take the right next action.
+
+---
+
+# 🗺️ Roadmap
+
+## Current
+
+* [x] Modern sales dashboard
+* [x] Lead management interface
+* [x] Lead prioritization
+* [x] AI-assisted outreach
+* [x] Sales analytics
+* [x] Authentication
+* [x] Supabase integration
+
+## Next
+
+* [ ] Smarter lead intelligence
+* [ ] Improved AI recommendations
+* [ ] Automated follow-up suggestions
+* [ ] More detailed sales insights
+* [ ] CRM integrations
+* [ ] Email provider integrations
+* [ ] Team collaboration
+* [ ] Advanced reporting
+* [ ] Mobile experience
+
+---
+
+# 🤝 Contributing
+
+Contributions, ideas, and feedback are welcome.
+
+### Fork the repository
+
+```bash
+git fork
+```
+
+Create a branch:
+
+```bash
+git checkout -b feature/your-feature
+```
+
+Make your changes and commit:
+
+```bash
+git add .
+git commit -m "Add your feature"
+```
+
+Push the branch:
+
+```bash
+git push origin feature/your-feature
+```
+
+Then open a pull request.
+
+---
+
+# 📄 License
+
+This project is currently under development.
+
+License information will be added as the project is prepared for public distribution.
+
+---
+
+# 👨‍💻 Team
+
+**KWIZERA Elissa**
+AI Engineer & Product Builder
+
+SalesGenius AI is being developed with the goal of turning AI into practical tools that create measurable value for businesses.
+
+---
+
+# ⭐ Support the Project
+
+If you find SalesGenius AI interesting, consider giving the repository a ⭐ on GitHub.
+
+Feedback, ideas, and contributions are welcome.
+
+---
+
+## SalesGenius AI
+
+**Know who to contact.
+Know what to say.
+Know what to do next.**
+
+> **Turn your sales pipeline into your next opportunity.**
