@@ -368,7 +368,7 @@ function GoogleButton({ label }: { label: string }) {
     window.location.href = "/dashboard";
   }
   return (
-    <Button type="button" variant="outline" className="w-full" disabled={loading}>
+    <Button variant="outline" className="w-full">
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
