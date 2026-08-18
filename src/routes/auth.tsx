@@ -374,7 +374,7 @@ function GoogleButton({ label }: { label: string }) {
       ) : (
         <GoogleIcon className="mr-2 h-4 w-4" />
       )}
-      {label}
+      {'Check your email to confirm'}
     </Button>
   );
 }
