@@ -3,18 +3,14 @@ import {
   LayoutDashboard,
   Users,
   Bot,
-  CreditCard,
-  Settings,
   LogOut,
   Menu,
-  KanbanSquare,
   Rocket,
-  BarChart3,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 
-import { supabase } from "@/integrations/supabase/client";
+import { auth } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -22,12 +18,8 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/leads", label: "Leads", icon: Users },
-  { to: "/pipeline", label: "Pipeline", icon: KanbanSquare },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/ai", label: "AI Assistant", icon: Bot },
   { to: "/onboarding", label: "Company profile", icon: Rocket },
-  { to: "/billing", label: "Billing", icon: CreditCard },
-  { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
 export function AppShell({
@@ -43,9 +35,9 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="app-canvas flex min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border/60 bg-sidebar md:flex md:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border/60 bg-sidebar/90 backdrop-blur-xl md:flex md:flex-col">
         <SidebarInner />
       </aside>
       <div className="hidden w-64 flex-none md:block" aria-hidden />
@@ -58,7 +50,7 @@ export function AppShell({
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur md:px-8">
+        <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-border/60 bg-background/75 px-4 backdrop-blur-xl md:px-8">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(true)}>
               <Menu className="h-5 w-5" />
@@ -115,13 +107,7 @@ function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
         })}
       </nav>
       <div className="border-t border-border/60 p-4 text-xs text-muted-foreground">
-        <div className="rounded-lg bg-primary/5 p-3">
-          <div className="font-medium text-foreground">Free plan</div>
-          <div className="mt-0.5">Upgrade to unlock Groq AI.</div>
-          <Button asChild size="sm" className="mt-2 w-full" variant="default">
-            <Link to="/billing">Upgrade</Link>
-          </Button>
-        </div>
+        <div className="rounded-lg bg-primary/5 p-3">Keep your lead list current and turn your best opportunities into thoughtful outreach.</div>
       </div>
     </div>
   );
@@ -130,7 +116,7 @@ function SidebarInner({ onNavigate }: { onNavigate?: () => void }) {
 function SignOutButton() {
   const navigate = useNavigate();
   async function onSignOut() {
-    await supabase.auth.signOut();
+    await auth.logout();
     toast.success("Signed out");
     navigate({ to: "/", replace: true });
   }

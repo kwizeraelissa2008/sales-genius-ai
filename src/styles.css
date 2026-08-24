@@ -56,19 +56,19 @@
 :root {
   --radius: 0.75rem;
   /* Base = light theme (#F8FAFC bg) */
-  --background: oklch(0.984 0.003 247.858);
+  --background: oklch(0.972 0.012 260);
   --foreground: oklch(0.208 0.042 265.755);
-  --card: oklch(1 0 0);
+  --card: oklch(0.993 0.006 260);
   --card-foreground: oklch(0.208 0.042 265.755);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.993 0.006 260);
   --popover-foreground: oklch(0.208 0.042 265.755);
   /* Primary = #3B82F6 blue */
   --primary: oklch(0.623 0.188 259.815);
   --primary-foreground: oklch(0.99 0 0);
   --primary-glow: oklch(0.72 0.17 255);
-  --secondary: oklch(0.968 0.007 247.896);
+  --secondary: oklch(0.947 0.025 260);
   --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
+  --muted: oklch(0.947 0.025 260);
   --muted-foreground: oklch(0.554 0.046 257.417);
   --accent: oklch(0.95 0.03 259);
   --accent-foreground: oklch(0.208 0.042 265.755);
@@ -78,19 +78,19 @@
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.77 0.16 75);
   --warning-foreground: oklch(0.2 0.03 60);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
+  --border: oklch(0.9 0.028 260);
+  --input: oklch(0.89 0.03 260);
   --ring: oklch(0.623 0.188 259.815);
   --chart-1: oklch(0.623 0.188 259.815);
   --chart-2: oklch(0.72 0.17 152);
   --chart-3: oklch(0.77 0.16 75);
   --chart-4: oklch(0.65 0.22 20);
   --chart-5: oklch(0.6 0.2 305);
-  --sidebar: oklch(1 0 0);
+  --sidebar: oklch(0.975 0.018 260);
   --sidebar-foreground: oklch(0.208 0.042 265.755);
   --sidebar-primary: oklch(0.623 0.188 259.815);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent: oklch(0.94 0.035 260);
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.623 0.188 259.815);
@@ -140,8 +140,12 @@
 @layer base {
   * { border-color: var(--color-border); }
   body {
-    background-color: var(--color-background);
+    background: radial-gradient(circle at 100% 0%, rgb(203 220 255 / 65%), transparent 31rem), linear-gradient(135deg, #eff5ff 0%, #f8faff 45%, #eef2ff 100%);
     color: var(--color-foreground);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+}
+
+.app-canvas {
+  background: radial-gradient(circle at 90% 5%, rgb(215 225 255 / 55%), transparent 24rem), linear-gradient(135deg, #eef4ff, #f8faff 52%, #f1f2ff);
 }

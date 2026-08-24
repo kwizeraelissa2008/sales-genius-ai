@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Loader2, Link2, Sparkles, Github, Linkedin, Globe, Twitter, Check } from "lucide-react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import {
@@ -17,9 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { enrichLinks } from "@/lib/enrich.functions";
+import { api } from "@/lib/api";
 import { createLead } from "@/lib/leads";
-import type { EnrichedPerson } from "@/lib/enrich.server";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -29,6 +27,12 @@ interface Props {
 }
 
 type Row = EnrichedPerson & { include: boolean };
+type EnrichedPerson = {
+  name: string | null; email: string | null; job_title: string | null; company: string | null;
+  location?: string | null; description?: string | null; notes: string | null; source_url: string;
+  social_links: Record<string, string | undefined>; suggested_goals: string[]; confidence: string;
+  mode: string; lead_score?: number; score_reasons?: string[]; warning?: string;
+};
 
 const EXAMPLES = [
   "https://www.linkedin.com/in/jane-doe",
@@ -37,7 +41,6 @@ const EXAMPLES = [
 ];
 
 export function EnrichDialog({ open, onOpenChange, onImported }: Props) {
-  const scrape = useServerFn(enrichLinks);
   const [raw, setRaw] = useState("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
@@ -60,7 +63,10 @@ export function EnrichDialog({ open, onOpenChange, onImported }: Props) {
     }
     setLoading(true);
     try {
-      const res = await scrape({ data: { urls } });
+      const { results: res } = await api<{ results: EnrichedPerson[] }>("/api/enrich", {
+        method: "POST",
+        body: JSON.stringify({ urls }),
+      });
       setRows(res.map((r) => ({ ...r, include: true })));
       const warned = res.filter((r) => r.warning).length;
       toast.success(
@@ -91,13 +97,11 @@ export function EnrichDialog({ open, onOpenChange, onImported }: Props) {
           email: p.email?.trim() || null,
           company: p.company?.trim() || null,
           job_title: p.job_title?.trim() || null,
-          location: p.location?.trim() || null,
-          bio: p.bio?.trim() || null,
+          description: p.description?.trim() || null,
           notes: p.notes?.trim() || null,
-          source_url: p.source_url,
-          social_links: p.social_links as never,
-          enriched_at: new Date().toISOString(),
           status: "new",
+          lead_score: p.lead_score,
+          score_reasons: p.score_reasons,
         });
       }
       toast.success(`Imported ${picked.length} lead${picked.length > 1 ? "s" : ""}`);
@@ -187,7 +191,7 @@ export function EnrichDialog({ open, onOpenChange, onImported }: Props) {
                     <Badge variant="secondary" className="text-[10px] capitalize">
                       {r.confidence} confidence
                     </Badge>
-                    {r.mode === "groq" && (
+                    {r.mode === "ejolabs" && (
                       <Badge variant="secondary" className="bg-success/15 text-[10px] text-success">
                         AI
                       </Badge>
@@ -218,12 +222,28 @@ export function EnrichDialog({ open, onOpenChange, onImported }: Props) {
                   />
                 </div>
 
-                {r.bio && <p className="mt-2 text-xs text-muted-foreground">{r.bio}</p>}
-                {r.notes && (
-                  <p className="mt-1.5 rounded-md bg-muted/40 p-2 text-xs">
-                    <span className="font-medium">Sales context: </span>
-                    {r.notes}
-                  </p>
+                <div className="mt-2 grid gap-2">
+                  <Textarea
+                    value={r.description ?? ""}
+                    onChange={(e) => patch(i, { description: e.target.value })}
+                    rows={2}
+                    placeholder="Professional description"
+                    className="text-xs"
+                  />
+                  <Textarea
+                    value={r.notes ?? ""}
+                    onChange={(e) => patch(i, { notes: e.target.value })}
+                    rows={3}
+                    placeholder="Research notes and outreach angles"
+                    className="text-xs"
+                  />
+                </div>
+
+                {typeof r.lead_score === "number" && (
+                  <div className="mt-2 rounded-lg bg-primary/[0.05] p-2 text-xs">
+                    <span className="font-semibold text-primary">Lead score: {r.lead_score}/100</span>
+                    {r.score_reasons?.length ? <ul className="mt-1.5 space-y-1 text-muted-foreground">{r.score_reasons.map((reason) => <li key={reason}>• {reason}</li>)}</ul> : null}
+                  </div>
                 )}
 
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">

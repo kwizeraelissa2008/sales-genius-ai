@@ -83,18 +83,18 @@ function OnboardingPage() {
       setForm({
         company_name: existing.company_name ?? "",
         industry: existing.industry ?? "",
-        website: existing.website ?? "",
-        description: existing.description ?? "",
+        website: "",
+        description: "",
         product_name: existing.product_name ?? "",
         product_description: existing.product_description ?? "",
         key_features: existing.key_features ?? [],
-        price_range: existing.price_range ?? "",
+        price_range: "",
         value_proposition: existing.value_proposition ?? "",
-        target_industries: existing.target_industries ?? [],
-        company_sizes: existing.company_sizes ?? [],
+        target_industries: existing.industry ? [existing.industry] : [],
+        company_sizes: existing.company_size ? existing.company_size.split(", ") : [],
         target_titles: existing.target_titles ?? [],
         pain_points: existing.pain_points ?? "",
-        regions: existing.regions ?? [],
+        regions: existing.target_regions ?? [],
       });
     }
   }, [existing]);
@@ -126,8 +126,20 @@ function OnboardingPage() {
     }
     setSaving(true);
     try {
-      await upsertCompanyProfile({ ...form, onboarded: markOnboarded });
-      qc.invalidateQueries({ queryKey: ["company_profile"] });
+      await upsertCompanyProfile({
+        company_name: form.company_name.trim(),
+        industry: form.industry || form.target_industries[0] || null,
+        company_size: form.company_sizes.join(", ") || null,
+        product_name: form.product_name.trim() || null,
+        product_description: [form.product_description.trim(), form.description.trim() && `Company context: ${form.description.trim()}`, form.website.trim() && `Website: ${form.website.trim()}`].filter(Boolean).join("\n\n") || null,
+        key_features: form.key_features,
+        value_proposition: [form.value_proposition.trim(), form.price_range && `Typical price range: ${form.price_range}`].filter(Boolean).join("\n") || null,
+        pain_points: form.pain_points.trim() || null,
+        target_titles: form.target_titles,
+        target_regions: form.regions,
+        onboarded: markOnboarded,
+      });
+      await qc.invalidateQueries({ queryKey: ["company_profile"] });
       if (markOnboarded) {
         toast.success("Your AI is ready! Let's add your first leads.");
         navigate({ to: "/leads" });

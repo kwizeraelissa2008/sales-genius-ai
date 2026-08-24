@@ -7,7 +7,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
-type ScorableLead = Pick<Lead, "lead_score" | "job_title" | "company" | "email">;
+type ScorableLead = Pick<Lead, "lead_score" | "job_title" | "company" | "email" | "score_reasons">;
 
 function tone(score: number) {
   return score >= 80
@@ -23,6 +23,7 @@ function tone(score: number) {
 
 function Explanation({ lead }: { lead: ScorableLead }) {
   const bd = scoreBreakdown(lead);
+  const reasons = lead.score_reasons?.length ? lead.score_reasons : bd.factors.map((factor) => factor.detail);
   const differs = bd.total !== lead.lead_score;
   return (
     <div className="space-y-2.5">
@@ -33,21 +34,8 @@ function Explanation({ lead }: { lead: ScorableLead }) {
         </p>
       </div>
       <ul className="space-y-1.5">
-        {bd.factors.map((f) => (
-          <li key={f.label} className="flex items-start justify-between gap-3 text-xs">
-            <span>
-              <span className="font-medium">{f.label}</span>
-              <span className="block text-muted-foreground">{f.detail}</span>
-            </span>
-            <span
-              className={cn(
-                "flex-none font-semibold tabular-nums",
-                f.points > 0 ? "text-success" : "text-muted-foreground",
-              )}
-            >
-              {f.points > 0 ? `+${f.points}` : "0"}
-            </span>
-          </li>
+        {reasons.map((reason) => (
+          <li key={reason} className="flex gap-2 text-xs text-muted-foreground"><span className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-primary" />{reason}</li>
         ))}
       </ul>
       <div className="flex items-center justify-between border-t border-border/70 pt-2 text-xs font-semibold">

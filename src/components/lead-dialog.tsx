@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -41,9 +41,9 @@ const empty = {
   email: "",
   company: "",
   job_title: "",
+  description: "",
   status: "new" as LeadStatus,
   notes: "",
-  deal_value: "",
 };
 
 export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
@@ -59,9 +59,9 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
               email: lead.email ?? "",
               company: lead.company ?? "",
               job_title: lead.job_title ?? "",
+              description: lead.description ?? "",
               status: lead.status,
               notes: lead.notes ?? "",
-              deal_value: lead.deal_value ? String(lead.deal_value) : "",
             }
           : empty,
       );
@@ -76,15 +76,14 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
     }
     setSaving(true);
     try {
-      const dealNum = form.deal_value.trim() ? Number(form.deal_value) : 0;
       const payload = {
         name: form.name.trim(),
         email: form.email.trim() || null,
         company: form.company.trim() || null,
         job_title: form.job_title.trim() || null,
+        description: form.description.trim() || null,
         status: form.status,
         notes: form.notes.trim() || null,
-        deal_value: Number.isFinite(dealNum) ? dealNum : 0,
       };
       if (lead) {
         await updateLead(lead.id, payload);
@@ -104,7 +103,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-2xl">
         <form onSubmit={onSubmit}>
           <DialogHeader>
             <DialogTitle>{lead ? "Edit lead" : "Add new lead"}</DialogTitle>
@@ -113,7 +112,7 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 grid gap-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <Label htmlFor="lead-name">Name *</Label>
                 <Input
@@ -159,38 +158,34 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="lead-status">Status</Label>
-                <Select
-                  value={form.status}
-                  onValueChange={(v) => setForm((f) => ({ ...f, status: v as LeadStatus }))}
-                >
-                  <SelectTrigger id="lead-status" className="mt-1.5">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LEAD_STATUSES.map((s) => (
-                      <SelectItem key={s} value={s} className="capitalize">
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="lead-deal">Deal value ($)</Label>
-                <Input
-                  id="lead-deal"
-                  type="number"
-                  min="0"
-                  step="100"
-                  value={form.deal_value}
-                  onChange={(e) => setForm((f) => ({ ...f, deal_value: e.target.value }))}
-                  className="mt-1.5"
-                  placeholder="0"
-                />
-              </div>
+            <div>
+              <Label htmlFor="lead-status">Status</Label>
+              <Select
+                value={form.status}
+                onValueChange={(v) => setForm((f) => ({ ...f, status: v as LeadStatus }))}
+              >
+                <SelectTrigger id="lead-status" className="mt-1.5">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEAD_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s} className="capitalize">
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="lead-description">Lead description</Label>
+              <Textarea
+                id="lead-description"
+                rows={3}
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                className="mt-1.5"
+                placeholder="Professional background, responsibilities, or useful context about this person."
+              />
             </div>
             <div>
               <Label htmlFor="lead-notes">Notes</Label>
@@ -203,6 +198,20 @@ export function LeadDialog({ open, onOpenChange, lead, onSaved }: Props) {
                 placeholder="Met at SaaStr, interested in Pro plan..."
               />
             </div>
+            {lead && (
+              <section className="rounded-xl border border-primary/15 bg-primary/[0.03] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 font-medium"><Sparkles className="h-4 w-4 text-primary" /> Why this lead is scored {lead.lead_score}/100</div>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Lead score</span>
+                </div>
+                <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                  {(lead.score_reasons?.length ? lead.score_reasons : ["Score is based on role seniority and the contact information available."]).map((reason) => (
+                    <li key={reason} className="flex gap-2"><span className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-primary" />{reason}</li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-xs text-muted-foreground">Update the title, company, or email and save to refresh this score.</p>
+              </section>
+            )}
           </div>
           <DialogFooter className="mt-6">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

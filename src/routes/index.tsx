@@ -61,7 +61,7 @@ function Header() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "linear-gradient(rgb(255 255 255 / 24%), rgb(255 255 255 / 60%)), url('/landing.png')" }}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -130,7 +130,7 @@ const FEATURES = [
   {
     icon: Brain,
     title: "AI lead scoring",
-    desc: "Every lead gets a 0-100 score with a reasoned strategy — powered by Llama 3 on Groq for millisecond latency.",
+    desc: "See which leads are worth your attention first, with a clear explanation of the score.",
   },
   {
     icon: Mail,
@@ -208,7 +208,7 @@ const PLANS = [
     desc: "For sales teams closing real deals.",
     features: [
       "Unlimited leads",
-      "Groq AI email generation",
+      "AI-assisted email drafts",
       "CSV import + export",
       "Advanced analytics",
       "Priority support",

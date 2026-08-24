@@ -18,7 +18,6 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
 import { LeadDialog } from "@/components/lead-dialog";
 import { EnrichDialog } from "@/components/enrich-dialog";
-import { LeadSheet } from "@/components/pipeline/lead-sheet";
 import { ScoreBar } from "@/components/score-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,7 +84,6 @@ function LeadsPage() {
   const [toDelete, setToDelete] = useState<Lead | null>(null);
   const [importing, setImporting] = useState(false);
   const [enrichOpen, setEnrichOpen] = useState(false);
-  const [openId, setOpenId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: leads, isLoading } = useQuery({
@@ -172,6 +170,10 @@ function LeadsPage() {
         toast.error("That file looks empty or is missing a header row.");
         return;
       }
+      if (rows.length > 500) {
+        toast.error("Please import up to 500 leads at a time.");
+        return;
+      }
       let ok = 0;
       let skipped = 0;
       const errors: string[] = [];
@@ -189,13 +191,15 @@ function LeadsPage() {
         const company =
           pick(row, ["company", "company name", "organization", "organisation", "account"]) || null;
         const job_title = pick(row, ["job_title", "title", "position", "role"]) || null;
-        const notes = pick(row, ["notes", "note", "comments", "description"]) || null;
+        const description = pick(row, ["description", "bio", "summary", "about", "profile"]) || null;
+        const notes = pick(row, ["notes", "note", "comments", "sales notes"]) || null;
         try {
           await createLead({
             name,
             email,
             company,
             job_title,
+            description,
             notes,
             status: "new",
             lead_score: heuristicScore({ job_title, company, email }),
@@ -330,7 +334,7 @@ function LeadsPage() {
                   <TableCell>
                     <button
                       type="button"
-                      onClick={() => setOpenId(lead.id)}
+                      onClick={() => openEdit(lead)}
                       className="text-left"
                       aria-label={`View details for ${lead.name}`}
                     >
@@ -367,7 +371,7 @@ function LeadsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setOpenId(lead.id)}>
+                        <DropdownMenuItem onClick={() => openEdit(lead)}>
                           <Search className="mr-2 h-4 w-4" /> View details
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(lead)}>
@@ -394,19 +398,6 @@ function LeadsPage() {
           </TableBody>
         </Table>
       </div>
-
-      <LeadSheet
-        lead={openId ? ((leads ?? []).find((l) => l.id === openId) ?? null) : null}
-        onOpenChange={(open) => !open && setOpenId(null)}
-        onSave={async (id, patch) => {
-          await updateLead(id, patch);
-          await qc.invalidateQueries({ queryKey: ["leads"] });
-        }}
-        onDelete={async (id) => {
-          await deleteLead(id);
-          await qc.invalidateQueries({ queryKey: ["leads"] });
-        }}
-      />
 
       <EnrichDialog
         open={enrichOpen}

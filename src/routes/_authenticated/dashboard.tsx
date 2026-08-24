@@ -18,6 +18,8 @@ import {
   ArrowUpRight,
   Sparkles,
   Plus,
+  Hand,
+  Target,
 } from "lucide-react";
 
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
@@ -56,6 +58,15 @@ function DashboardPage() {
         </Button>
       }
     >
+      <section className="mb-6 overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-r from-white via-white to-primary/[0.08] p-6 shadow-[var(--shadow-card)]">
+        <div className="flex items-start justify-between gap-5">
+          <div>
+            <h2 className="flex items-center gap-2 text-2xl font-semibold tracking-tight"><Hand className="h-5 w-5 text-warning" /> Welcome back, {user.user_metadata?.full_name?.split(" ")[0] ?? "there"}!</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Turn your lead list into meaningful conversations today.</p>
+          </div>
+          <div className="hidden rounded-2xl bg-primary/10 p-4 text-primary sm:block"><Target className="h-10 w-10" /></div>
+        </div>
+      </section>
       <div className="mb-6">
         <OnboardingChecklist />
       </div>
