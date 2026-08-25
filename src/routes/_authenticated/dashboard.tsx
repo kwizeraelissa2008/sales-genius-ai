@@ -209,7 +209,7 @@ function computeMetrics(leads: Lead[]) {
   const highPriority = leads.filter((l) => l.lead_score >= 80).length;
   const avgScore =
     total === 0 ? 0 : Math.round(leads.reduce((s, l) => s + l.lead_score, 0) / total);
-  const closed = leads.filter((l) => l.status === "closed").length;
+  const closed = leads.filter((l) => l.status === "won").length;
   const conversion = total === 0 ? 0 : Math.round((closed / total) * 1000) / 10;
   return { total, highPriority, avgScore, conversion };
 }
