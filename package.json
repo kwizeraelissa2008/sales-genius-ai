@@ -8,9 +8,11 @@
     "api": "node --env-file=.env --watch backend/server.ts",
     "api:start": "node --env-file=.env backend/server.ts",
     "build": "vite build && tsc",
+    "build:backend": "tsc backend/server.ts --outDir dist/backend --module esnext --moduleResolution bundler --target es2022 --skipLibCheck",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "start": "node dist/backend/server.js",
+    "start:backend": "npx tsx backend/server.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -44,12 +46,12 @@
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "bcryptjs": "^3.0.2",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.101.1",
     "@tanstack/react-router": "^1.170.16",
     "@tanstack/react-start": "^1.168.26",
     "@tanstack/router-plugin": "^1.168.18",
+    "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -87,11 +89,11 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "nitro": "3.0.260603-beta",
+    "pg": "^8.16.3",
     "prettier": "^3.7.3",
-    "typescript": "^5.8.3",
     "tsx": "^4.20.5",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^8.0.16",
-    "pg": "^8.16.3"
+    "vite": "^8.0.16"
   }
 }
