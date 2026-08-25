@@ -131,7 +131,7 @@ const json = (data: unknown, status = 200, headers: HeadersInit = {}) =>
 const fail = (message: string, status = 400) => json({ error: message }, status);
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
 const token = () => randomBytes(32).toString("base64url");
-const cookie = (value: string, maxAge: number) => `${cookieName}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
+const cookie = (value: string, maxAge: number) => `${cookieName}=${value}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=${maxAge}${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
 
 function parseCookies(request: Request) {
   return Object.fromEntries((request.headers.get("cookie") ?? "").split(";").map((v) => v.trim().split("=")).filter(([k]) => k));
