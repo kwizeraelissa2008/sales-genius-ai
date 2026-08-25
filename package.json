@@ -7,9 +7,10 @@
     "dev": "vite dev",
     "api": "node --env-file=.env --watch backend/server.ts",
     "api:start": "node --env-file=.env backend/server.ts",
-    "build": "vite build",
+    "build": "vite build && tsc",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "start": "node dist/backend/server.js",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
