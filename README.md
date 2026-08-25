@@ -1,175 +1,115 @@
-# SalesGenius AI
+# 🚀 SalesGenius AI
 
-SalesGenius helps small sales teams keep their lead list organised, research public profiles, write tailored outreach, and send it from one workspace.
+> **Know who to contact. Know what to say. Know what to do next.**
 
-## MVP scope
+SalesGenius AI is an AI-powered sales assistant designed for founders, freelancers, small businesses, and growing sales teams. It helps users organize leads, research public prospect information, prioritize opportunities, generate personalized outreach, and turn sales data into clear next actions — all from one workspace.
 
-- Email/password accounts with secure server-side sessions and password resets
-- Guided business-profile onboarding
-- Lead management, CSV/XLSX import, and public-link enrichment
-- EjoLabs-powered outreach drafts with a reliable local fallback
-- Outbound delivery through Resend
+The product is built around a simple idea:
 
-## Local setup
-
-1. Install and start Docker Desktop.
-2. Copy `.env.example` to `.env`, then set strong `POSTGRES_PASSWORD` plus your `EJOLABS_API_KEY`, `RESEND_API_KEY`, and `SENDER_EMAIL`.
-3. Start local services: `docker compose up -d`.
-4. Install packages: `npm install`.
-5. In one terminal run `npm run api`; in another run `npm run dev`.
-6. Open `http://localhost:3000`.
-
-The API uses PostgreSQL for accounts, sessions, business profiles, leads, and message history. Redis is provisioned for future rate limiting and background jobs.
-
-## Environment safety
-
-Never expose `EJOLABS_API_KEY` or `RESEND_API_KEY` in browser variables. The browser only receives `VITE_API_URL`; all provider calls run through the local API.
-
-# SalesGenius AI 🚀
-
-> **Turn more prospects into customers with an AI-powered sales assistant.**
-
-SalesGenius AI helps salespeople and businesses understand their leads, identify the opportunities that deserve attention, create personalized outreach, and stay focused on the actions most likely to move a deal forward.
-
-Instead of forcing sales teams to manually analyze hundreds of leads and decide what to do next, SalesGenius turns sales data into clear, actionable priorities.
+**Less guessing. Less manual work. More focused selling.**
 
 ---
 
-## 🎯 The Problem
+# ✨ Why SalesGenius AI?
 
-Sales teams often lose opportunities not because they have no leads, but because they don't know:
+Sales teams often lose opportunities not because they lack leads, but because they struggle to answer:
 
-* Which leads are actually worth pursuing
-* Who should be contacted first
-* What message to send
-* Which opportunities are going cold
-* When a follow-up is needed
-* Where potential revenue is being lost
+- 🎯 Which leads are worth pursuing?
+- ⏱️ Who should I contact first?
+- ✍️ What should I say?
+- 🔥 Which opportunities are showing strong intent?
+- 📅 Who needs a follow-up?
+- 📉 Which opportunities are going cold?
+- 💰 Where could potential revenue be getting lost?
 
-As the number of leads grows, spreadsheets and disconnected tools make this increasingly difficult.
+Spreadsheets and disconnected tools make these decisions harder as the number of leads grows.
 
-**SalesGenius AI was built to make that decision-making process simpler.**
+**SalesGenius AI turns raw lead data into practical sales priorities and actions.**
 
 ---
 
-## 💡 The Solution
+# 🧠 What SalesGenius AI Does
 
-SalesGenius AI acts as an intelligent sales assistant.
-
-It transforms raw leads into actionable sales opportunities by helping users answer three important questions:
+SalesGenius acts as an intelligent sales assistant around three core questions:
 
 ### 1. Who should I contact?
 
-SalesGenius evaluates leads and identifies high-priority opportunities.
+Lead information and sales signals are used to help identify high-priority opportunities.
 
 ### 2. What should I say?
 
-The system generates personalized outreach based on the prospect and available sales context.
+AI-assisted outreach helps create personalized messages based on available prospect, company, role, and sales context.
 
 ### 3. What should I do next?
 
-Sales insights help users understand which opportunities need attention, which are progressing, and which may require follow-up.
-
-The goal is simple:
-
-> **Less guessing. Less manual work. More focused selling.**
+Sales insights help users identify opportunities that need attention, follow-ups that are due, and areas of the pipeline that may be losing momentum.
 
 ---
 
-## ✨ What SalesGenius AI Provides
+# 🎯 Core Features
 
-### 🎯 Lead Prioritization
+## Lead Management
 
-Identify the prospects that deserve attention first instead of treating every lead equally.
+Manage leads in one workspace instead of relying on disconnected spreadsheets.
 
-Each lead can be evaluated and assigned a priority score to help salespeople focus their time.
+Supported workflows include:
 
-### ✍️ Personalized Outreach
-
-Generate personalized sales messages using information about the prospect, company, role, and sales context.
-
-Instead of starting every email from a blank page, users can quickly create relevant outreach.
-
-### 📊 Sales Insights
-
-Understand what's happening across the sales pipeline.
-
-Users can monitor important indicators such as:
-
-* Lead volume
-* High-priority opportunities
-* Lead scores
-* Conversion performance
-* Pipeline activity
-
-### 🔎 Lead Organization
-
-Search, filter, sort, and organize leads based on useful sales signals.
-
-This makes it easier to find the right opportunities without manually going through large spreadsheets.
-
-### 🤖 AI-Assisted Decision Making
-
-SalesGenius uses AI to reduce repetitive sales analysis and help users make faster decisions.
-
-The AI is designed to support the salesperson—not replace the salesperson.
+- Lead creation and management
+- CSV/XLSX import
+- Search
+- Filtering
+- Sorting
+- Lead prioritization
+- Status tracking
+- Company and role information
+- Sales signals
+- Public-link enrichment
 
 ---
 
-## 🧠 How It Works
+## 🔥 Lead Prioritization
 
-```text
-                SALES LEADS
-                     │
-                     ▼
-             ┌───────────────┐
-             │   SalesGenius  │
-             │      AI        │
-             └───────┬───────┘
-                     │
-          ┌──────────┼──────────┐
-          ▼          ▼          ▼
-      PRIORITIZE   UNDERSTAND   GENERATE
-       LEADS       OPPORTUNITY   OUTREACH
-          │          │          │
-          └──────────┼──────────┘
-                     ▼
-              ACTIONABLE TASKS
-                     │
-                     ▼
-               SALES ACTION
-                     │
-                     ▼
-              BETTER OPPORTUNITIES
-```
+Not every lead deserves the same amount of attention.
 
-The system turns lead data into practical actions instead of simply displaying information.
+SalesGenius helps evaluate leads and assign priority signals so users can focus their limited time on opportunities that matter most.
+
+Example signals include:
+
+- Priority
+- Lead score
+- Intent
+- Status
+- Company context
+- Available prospect information
+- Pipeline activity
 
 ---
 
-## 🖥️ Product Experience
+## ✍️ AI-Powered Personalized Outreach
 
-SalesGenius is designed around a simple principle:
+Instead of starting every sales email from a blank page, SalesGenius can generate tailored outreach using available lead context.
 
-> **Users shouldn't have to understand the technology to get the value.**
+The goal is to produce messages that are:
 
-Instead of making users learn complex sales terminology or AI workflows, the interface focuses on questions they already have:
+- Relevant
+- Personalized
+- Concise
+- Sales-oriented
+- Grounded in available prospect information
 
-* **Who should I contact?**
-* **Who is most likely to buy?**
-* **What should I say?**
-* **Who needs a follow-up?**
-* **Where should I focus today?**
+The system supports **EjoLabs-powered outreach drafts** with a reliable local fallback.
+
+Outbound delivery is supported through **Resend**.
 
 ---
 
-## 🏗️ Core Product Areas
+## 📊 Sales Dashboard & Insights
 
-### Dashboard
+The dashboard is designed to answer:
 
-The dashboard gives users a quick overview of their sales situation and highlights opportunities that may require attention.
+> **"What should I do next?"**
 
-Example insights:
+Example dashboard indicators can include:
 
 ```text
 1,284
@@ -183,91 +123,150 @@ High-intent prospects
 
 12
 Follow-ups due
-```
 
-The purpose is not simply to show statistics.
+The dashboard is not intended to be a collection of vanity metrics. Its purpose is to surface actionable sales opportunities.
 
-The dashboard is designed to answer:
+🔎 Lead Intelligence
 
-> **"What should I do next?"**
+SalesGenius helps users understand their leads beyond basic contact information.
 
----
+The system can organize and surface:
 
-### Lead Management
+Public profile information
+Company information
+Role
+Sales signals
+Priority
+Lead score
+Pipeline status
+Available sales context
+🤖 AI-Assisted Decision Making
 
-Users can manage their sales leads in one place.
+SalesGenius uses AI to reduce repetitive sales analysis and support faster decision-making.
 
-Lead information can be organized using:
+AI supports the salesperson — it does not replace the salesperson.
 
-* Priority
-* Status
-* Score
-* Sales signals
-* Company
-* Role
-* Other available context
+🏗️ How It Works
+                     SALES LEADS
+                         │
+                         ▼
+              ┌────────────────────┐
+              │    SalesGenius AI  │
+              └──────────┬─────────┘
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+      PRIORITIZE      UNDERSTAND     GENERATE
+        LEADS         OPPORTUNITY    OUTREACH
+          │              │              │
+          └──────────────┼──────────────┘
+                         ▼
+                 ACTIONABLE TASKS
+                         │
+                         ▼
+                    SALES ACTION
+                         │
+                         ▼
+                 BETTER OPPORTUNITIES
 
----
+The product is designed to transform lead data into practical actions rather than simply displaying information.
 
-### AI Outreach
+🖥️ Product Experience
 
-Users can generate personalized sales messages without manually writing every message from scratch.
+SalesGenius follows one important UX principle:
 
-The system uses available lead information to produce more relevant outreach.
+Users shouldn't have to understand the technology to get the value.
 
----
+The interface focuses on the questions salespeople already have:
 
-### Sales Analytics
+Who should I contact?
+Who is most likely to buy?
+What should I say?
+Who needs a follow-up?
+Where should I focus today?
+🧩 Product Areas
+Dashboard
 
-SalesGenius provides visibility into pipeline activity and performance.
+A high-level view of sales activity, lead health, priorities, and opportunities requiring attention.
 
-Users can use analytics to identify:
+Lead Management
 
-* Opportunities
-* Conversion trends
-* Lead health
-* Pipeline movement
-* Areas requiring attention
+A central workspace for searching, filtering, sorting, importing, and organizing leads.
 
----
+AI Outreach
 
-## 🛠️ Technology Stack
+Generate personalized sales messages using available lead and company context.
 
-SalesGenius AI is built using modern web technologies.
+Sales Analytics
 
-### Frontend
+Understand:
 
-* React
-* TypeScript
-* Vite
-* Tailwind CSS
-* shadcn/ui
-* Lucide React
+Lead volume
+High-priority opportunities
+Lead scores
+Conversion performance
+Pipeline activity
+Lead health
+Pipeline movement
+Areas requiring attention
+Business Profile
 
-### Backend / Platform
+Guided business-profile onboarding helps establish the context required for more relevant sales workflows and outreach.
 
-* Supabase
-* Supabase Authentication
-* PostgreSQL
-* Supabase Edge Functions
-
-### AI
-
-* Llama 3
-* Groq API
-
-### Development
-
-* Git
-* GitHub
-* Lovable
-* VS Code / Cursor
-
----
-
-## 📁 Project Structure
-
-```text
+🛠️ Technology Stack
+Frontend
+React
+TypeScript
+Vite
+Tailwind CSS
+shadcn/ui
+Lucide React
+Backend & Data
+Node.js API
+PostgreSQL
+Redis
+Supabase
+Supabase Authentication
+Supabase Edge Functions
+AI
+EjoLabs
+Llama 3
+Groq API
+Local AI outreach fallback
+Email
+Resend
+Development
+Git
+GitHub
+Lovable
+VS Code
+Cursor
+🏛️ Architecture
+┌───────────────────────────────┐
+│          React Client         │
+│   React + TypeScript + Vite   │
+└───────────────┬───────────────┘
+                │
+                │ API requests
+                ▼
+┌───────────────────────────────┐
+│          API / Server         │
+│ Authentication • Leads • AI   │
+│ Outreach • Sales Intelligence │
+└───────┬─────────┬─────────────┘
+        │         │
+        ▼         ▼
+┌─────────────┐  ┌────────────────┐
+│ PostgreSQL  │  │     Redis      │
+│ Application │  │ Future jobs &  │
+│    data     │  │ rate limiting  │
+└─────────────┘  └────────────────┘
+        │
+        ├───────────────► AI Providers
+        │
+        └───────────────► Resend
+                         Email delivery
+📁 Project Structure
 salesgenius-ai/
 │
 ├── src/
@@ -288,219 +287,325 @@ salesgenius-ai/
 ├── vite.config.ts
 ├── tailwind.config.ts
 ├── tsconfig.json
+├── .env.example
 └── README.md
-```
+🚀 Getting Started
+Prerequisites
 
-> The exact structure may evolve as the project develops.
+Install:
 
----
-
-# 🚀 Getting Started
-
-## Prerequisites
-
-Make sure you have installed:
-
-* Node.js
-* npm
-* Git
-
-You will also need the required Supabase and AI API credentials for the parts of the application that depend on external services.
-
----
-
-## 1. Clone the repository
-
-```bash
+Node.js
+npm
+Git
+Docker Desktop
+1. Clone the Repository
 git clone https://github.com/YOUR_USERNAME/salesgenius-ai.git
-```
-
-Move into the project:
-
-```bash
 cd salesgenius-ai
-```
-
----
-
-## 2. Install dependencies
-
-```bash
+2. Install Dependencies
 npm install
-```
+3. Configure Environment Variables
 
----
+Create your environment file:
 
-## 3. Configure environment variables
+cp .env.example .env
 
-Create a `.env` file in the project root.
+Windows PowerShell:
+
+Copy-Item .env.example .env
 
 Example:
 
-```env
+VITE_API_URL=http://localhost:3000
+
+POSTGRES_PASSWORD=your_strong_password
+
+EJOLABS_API_KEY=your_ejolabs_api_key
+
+RESEND_API_KEY=your_resend_api_key
+
+SENDER_EMAIL=you@example.com
+
 VITE_SUPABASE_URL=your_supabase_url
+
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
 
-For server-side functions, configure the required AI/API secrets in the appropriate Supabase environment rather than exposing private keys in the frontend.
+⚠️ Never commit API keys, passwords, database credentials, or other secrets to GitHub.
 
-> **Never commit API keys, passwords, database credentials, or other secrets to GitHub.**
+🐳 Start Local Services
+docker compose up -d
 
----
+Check services:
 
-## 4. Start the development server
+docker compose ps
 
-```bash
+Stop services:
+
+docker compose down
+💻 Run the Application
+
+Start the API:
+
+npm run api
+
+In another terminal:
+
 npm run dev
-```
 
-The application should then be available through the local development URL displayed by Vite.
+Open the URL displayed by Vite.
 
----
+🔐 Security
 
-# 🔐 Security
+SalesGenius is designed with security in mind.
 
-Security is an important part of the application architecture.
+The application uses:
 
-SalesGenius is designed to use:
+Authentication
+Secure server-side sessions
+Password resets
+Database access controls
+Environment variables
+Server-side API credentials
+Row-level security where appropriate
+Never expose private credentials
 
-* Authentication
-* Database access controls
-* Environment variables for secrets
-* Server-side handling of sensitive API credentials
-* Row-level security where appropriate
+Never put these in frontend code:
 
-Private API keys should never be exposed in client-side code.
+EJOLABS_API_KEY
+RESEND_API_KEY
+POSTGRES_PASSWORD
 
----
+Private provider credentials must remain on the server.
 
-# 🧪 Development
+📥 Lead Import
 
-Run the production build:
+SalesGenius supports:
 
-```bash
-npm run build
-```
+CSV import
+XLSX import
 
-Preview the production build locally:
+Workflow:
 
-```bash
-npm run preview
-```
+CSV / XLSX
+    ↓
+Import
+    ↓
+Validation
+    ↓
+Lead Records
+    ↓
+Enrichment
+    ↓
+Lead Intelligence
+    ↓
+Prioritization
+    ↓
+Outreach
+📧 AI Outreach
+Lead
+ ↓
+Lead Context
+ ↓
+AI Outreach Generation
+ ↓
+Review
+ ↓
+Resend
+ ↓
+Prospect
 
-Before pushing changes:
+SalesGenius separates AI message generation from outbound email delivery.
 
-```bash
-git status
-git add .
-git commit -m "describe your changes"
-git push
-```
+🧠 AI Philosophy
 
----
+SalesGenius is not designed to generate AI content for its own sake.
 
-# 🌍 Vision
+The focus is actionable intelligence.
 
-SalesGenius AI is built around a broader idea:
+Instead of:
 
-> **Small businesses should not need a large sales department to sell intelligently.**
+"Here is some information about this lead."
 
-Many businesses already have potential customers in their pipeline. The problem is often knowing where to focus limited time and attention.
+The goal is:
 
-SalesGenius aims to make intelligent sales assistance accessible to founders, freelancers, small businesses, and growing sales teams.
+"This lead deserves attention. Here is why. Here is what you could say. Here is what you should consider doing next."
 
-The long-term vision is to build an AI sales assistant that doesn't simply display sales data but actively helps users understand their opportunities and take the right next action.
+The AI supports:
 
----
+Prioritization
+Context understanding
+Personalization
+Recommendations
+Sales execution
+📈 Roadmap
+Current
+ Modern sales dashboard
+ Lead management
+ Lead prioritization
+ AI-assisted outreach
+ Sales analytics
+ Authentication
+ Business-profile onboarding
+ CSV/XLSX import
+ Public-link enrichment
+ EjoLabs outreach drafts
+ Local outreach fallback
+ Resend email delivery
+ PostgreSQL
+ Redis infrastructure
+Next
+ Smarter lead intelligence
+ Improved AI recommendations
+ Automated follow-up suggestions
+ Advanced sales insights
+ CRM integrations
+ More email integrations
+ Team collaboration
+ Advanced reporting
+ Mobile experience
+ Background job processing
+ Advanced lead enrichment
+ Pipeline forecasting
+🗺️ Long-Term Vision
 
-# 🗺️ Roadmap
+Small businesses should not need a large sales department to sell intelligently.
 
-## Current
+SalesGenius aims to become an AI sales assistant that does more than display sales data.
 
-* [x] Modern sales dashboard
-* [x] Lead management interface
-* [x] Lead prioritization
-* [x] AI-assisted outreach
-* [x] Sales analytics
-* [x] Authentication
-* [x] Supabase integration
+The long-term goal is to help users:
 
-## Next
+UNDERSTAND
+     ↓
+PRIORITIZE
+     ↓
+PERSONALIZE
+     ↓
+ACT
+     ↓
+FOLLOW UP
+     ↓
+LEARN
+     ↓
+GROW
+🤝 Contributing
 
-* [ ] Smarter lead intelligence
-* [ ] Improved AI recommendations
-* [ ] Automated follow-up suggestions
-* [ ] More detailed sales insights
-* [ ] CRM integrations
-* [ ] Email provider integrations
-* [ ] Team collaboration
-* [ ] Advanced reporting
-* [ ] Mobile experience
+Contributions, ideas, feedback, and improvements are welcome.
 
----
+Create a feature branch:
 
-# 🤝 Contributing
-
-Contributions, ideas, and feedback are welcome.
-
-### Fork the repository
-
-```bash
-git fork
-```
-
-Create a branch:
-
-```bash
 git checkout -b feature/your-feature
-```
 
-Make your changes and commit:
+Make changes:
 
-```bash
 git add .
 git commit -m "Add your feature"
-```
 
-Push the branch:
+Push:
 
-```bash
 git push origin feature/your-feature
-```
 
-Then open a pull request.
+Then open a Pull Request.
 
----
+Contribution Guidelines
+Keep changes focused
+Follow the existing project structure
+Never commit secrets
+Test changes locally
+Keep the UI responsive
+Keep accessibility in mind
+Document important architectural changes
+Prefer maintainable code over unnecessary complexity
+🧪 Development Checklist
 
-# 📄 License
+Before submitting a feature:
 
-This project is currently under development.
+ Authentication works
+ Protected pages require authentication
+ Leads can be created
+ Leads can be searched
+ Lead filtering works
+ Lead prioritization works
+ AI outreach works
+ Local fallback works
+ Email delivery works
+ API keys are protected
+ Production build succeeds
+ Responsive design works
+ Errors are handled properly
+📄 License
 
-License information will be added as the project is prepared for public distribution.
+SalesGenius AI is currently under development.
 
----
+License information will be added when the project is prepared for public distribution.
 
-# 👨‍💻 Team
+👨‍💻 Creator
 
-**KWIZERA Elissa**
+KWIZERA Elissa
+
 AI Engineer & Product Builder
 
 SalesGenius AI is being developed with the goal of turning AI into practical tools that create measurable value for businesses.
 
----
+⭐ Support the Project
 
-# ⭐ Support the Project
+If you find SalesGenius AI interesting:
 
-If you find SalesGenius AI interesting, consider giving the repository a ⭐ on GitHub.
-
-Feedback, ideas, and contributions are welcome.
-
----
-
-## SalesGenius AI
-
-**Know who to contact.
+⭐ Star the repository
+🐛 Report issues
+💡 Share ideas
+🤝 Contribute
+📣 Share the project
+🔥 SalesGenius AI
+Know who to contact.
 Know what to say.
-Know what to do next.**
+Know what to do next.
 
-> **Turn your sales pipeline into your next opportunity.**
+Turn your sales pipeline into your next opportunity.
+
+📌 Quick Reference
+Area	Technology
+Frontend	React + TypeScript + Vite
+Styling	Tailwind CSS + shadcn/ui
+Icons	Lucide React
+Backend	Node.js
+Database	PostgreSQL
+Cache / Jobs	Redis
+Platform	Supabase
+Authentication	Secure Sessions / Supabase Auth
+AI	EjoLabs + Llama 3 + Groq
+Email	Resend
+Lead Import	CSV / XLSX
+Development	Git + GitHub + Lovable + VS Code + Cursor
+🎯 Product North Star
+
+SalesGenius AI should help a salesperson move from a large list of leads to the right action with as little unnecessary work as possible.
+
+LEADS
+  ↓
+UNDERSTAND
+  ↓
+PRIORITIZE
+  ↓
+PERSONALIZE
+  ↓
+ACT
+  ↓
+FOLLOW UP
+  ↓
+LEARN
+  ↓
+MORE OPPORTUNITIES
+
+### 💡 To use it
+
+1. Open your project folder.
+2. Find `README.md`.
+3. Open it in VS Code.
+4. **Delete everything inside it.**
+5. Paste the Markdown above.
+6. Save with `Ctrl + S`.
+7. Push it to GitHub:
+
+```bash
+git add README.md
+git commit -m "Update professional README"
+git push
